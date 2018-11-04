@@ -31,14 +31,16 @@ import visual.statik.sampled.ContentFactory;
 
 public class BernsteinBlaster extends JApplication implements KeyListener, ActionListener, MetronomeListener
 { 
-  JPanel contentPane;
-  Visualization menuViz;
-  Stage gameViz, bernViz; 
-  TransformableContent ship, jaw;
-  int currX, currY;
-  Clip menuMusic, laserSound;
-  Metronome talk;
-  boolean jawUp = true;
+  private static final Color BORDER_COLOR = new Color(168, 13, 142);
+  
+  private JPanel contentPane;
+  private Visualization menuViz;
+  private Stage gameViz, bernViz; 
+  private TransformableContent ship, jaw;
+  private int currX, currY;
+  private Clip menuMusic, laserSound;
+  private Metronome talk;
+  private boolean jawUp = true;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
@@ -90,7 +92,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     start.setOpaque(true);
     start.setBackground(Color.BLACK);
     //startButton.setForeground(Color.GREEN);
-    start.setBorder(new MatteBorder(3, 3, 3, 3, Color.GREEN));
+    start.setBorder(new MatteBorder(3, 3, 3, 3, BORDER_COLOR));
     contentPane.add(start);
     
     // Setup the highscores button and add it to the panel
@@ -99,7 +101,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     highScores.setOpaque(true);
     highScores.setBackground(Color.BLACK);
     //highScores.setForeground(Color.GREEN);
-    highScores.setBorder(new MatteBorder(3, 3, 3, 3, Color.GREEN));
+    highScores.setBorder(new MatteBorder(3, 3, 3, 3, BORDER_COLOR));
     contentPane.add(highScores);
     
     // Visualization for the main menu containing the stars background as well
@@ -164,8 +166,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     textField.setBounds(0, 320, 320, 400);
     textField.setOpaque(true);
     textField.setBackground(Color.BLACK);
-    textField.setBorder(new MatteBorder(5, 5, 5, 5, new Color(96, 198, 45)));
-    textField.setForeground(Color.GREEN);
+    textField.setBorder(new MatteBorder(5, 5, 5, 5, BORDER_COLOR));
+    textField.setForeground(BORDER_COLOR);
     contentPane.add(textField);
     
     // Create the stage for the main portion of the game containing the ship
@@ -191,7 +193,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameView = gameViz.getView();
     gameView.setBounds(320, 0, width - 300, height);
     gameView.setBackground(Color.WHITE);
-    gameView.setBorder(new MatteBorder(5, 5, 5, 5, new Color(96, 198, 45)));
+    gameView.setBorder(new MatteBorder(5, 5, 5, 5, BORDER_COLOR));
     contentPane.add(gameView);
     
     // Create the Stage for the NPC
@@ -218,7 +220,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     bernView = bernViz.getView();
     bernView.setBounds(0, 0, 320, 320);
     bernView.setBackground(Color.BLACK);
-    bernView.setBorder(new MatteBorder(5, 5, 5, 5, new Color(96, 198, 45)));
+    bernView.setBorder(new MatteBorder(5, 5, 5, 5, BORDER_COLOR));
     contentPane.add(bernView);
     
     // Stop the music from the main menu
