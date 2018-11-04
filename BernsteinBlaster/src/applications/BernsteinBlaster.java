@@ -1,28 +1,44 @@
 package applications;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
 
 import app.JApplication;
+import event.Metronome;
+import event.MetronomeListener;
 import io.ResourceFinder;
 import visual.Visualization;
 import visual.VisualizationView;
+import visual.dynamic.described.Stage;
 import visual.statik.TransformableContent;
 import visual.statik.sampled.ContentFactory;
 
-public class BernsteinBlaster extends JApplication implements KeyListener
+public class BernsteinBlaster extends JApplication implements KeyListener, ActionListener, MetronomeListener
 { 
-  Visualization viz;
-  visual.statik.sampled.TransformableContent ship;
-  TransformableContent stars;
+  JPanel contentPane;
+  Visualization menuViz;
+  Stage gameViz, bernViz; 
+  TransformableContent ship, jaw;
   int currX, currY;
+  Clip menuMusic, laserSound;
+  Metronome talk;
+  boolean jawUp = true;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
@@ -36,18 +52,114 @@ public class BernsteinBlaster extends JApplication implements KeyListener
 
   @Override
   public void init()
-  {
-    JPanel contentPane;
-    VisualizationView view;
-    JLabel textField;
-    
+  { 
     contentPane = (JPanel) this.getContentPane();
     contentPane.setLayout(null);
-    contentPane.setBackground(Color.WHITE);
+    contentPane.setBackground(Color.BLACK);
+    
+    talk = new Metronome();
+    
+    setupMenu();
+  }
+  
+  public static void main(String[] args) throws InvocationTargetException, InterruptedException
+  {
+    SwingUtilities.invokeAndWait(new BernsteinBlaster(1280, 720));
+  }
+  
+  /**
+   * Helper function that updates the content pane with the appropriate components for the main
+   * menu of the game.
+   */
+  private void setupMenu()
+  {
+    JButton start, highScores;
+    VisualizationView view;
+    TransformableContent logo, stars;
     
     ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
     ContentFactory factory = new ContentFactory(finder);
     
+    // Clear the content pane. This isn't necessary on startup but will be after the 
+    // implementation of an in game quit button
+    contentPane.removeAll();
+    
+    // Setup the start button and add it to the panel
+    start = new JButton("START");
+    start.setBounds(400, 550, 150, 50);
+    start.setOpaque(true);
+    start.setBackground(Color.BLACK);
+    //startButton.setForeground(Color.GREEN);
+    start.setBorder(new MatteBorder(3, 3, 3, 3, Color.GREEN));
+    contentPane.add(start);
+    
+    // Setup the highscores button and add it to the panel
+    highScores = new JButton("HIGHSCORES");
+    highScores.setBounds(730, 550, 150, 50);
+    highScores.setOpaque(true);
+    highScores.setBackground(Color.BLACK);
+    //highScores.setForeground(Color.GREEN);
+    highScores.setBorder(new MatteBorder(3, 3, 3, 3, Color.GREEN));
+    contentPane.add(highScores);
+    
+    // Visualization for the main menu containing the stars background as well
+    // as the game logo
+    menuViz = new Visualization();
+    
+    // Create the background content and add it to the Visualization
+    stars = factory.createContent("stars.png");
+    stars.setScale(1.1, 1);
+    stars.setLocation(0, 0);
+    menuViz.add(stars);
+    
+    // Create the logo content and add it to the Visualization
+    logo = factory.createContent("Bernstein.png", 4);
+    logo.setLocation((width/2) - 239, (height/4));
+    menuViz.add(logo);
+    
+    // Create the VisualizationView and set the bounds to match the window
+    view = menuViz.getView();
+    view.setBounds(0, 0, width, height);
+    view.setBackground(Color.BLACK);
+    contentPane.add(view);
+    
+    // Update the content pane for the changes to be visible
+    contentPane.repaint();
+    
+    // Add the application as a listener of both the main menu buttons
+    start.addActionListener(this);
+    highScores.addActionListener(this);
+    
+    // Attempt the start the menu background music
+    try
+    {
+      menuMusic = AudioSystem.getClip();
+      menuMusic.open(AudioSystem.getAudioInputStream(new File("MenuMusic.wav")));
+      menuMusic.start();
+    }
+    catch (LineUnavailableException | IOException | UnsupportedAudioFileException e)
+    {
+      System.out.println("Exception");
+    }
+  }
+  
+  /**
+   * Helper function that updates the content pane with the appropriate components for the main
+   * section of the game.
+   */
+  private void setupGame()
+  {
+    VisualizationView gameView, bernView;
+    JLabel textField;
+    TransformableContent stars, bernNPC, blur;
+    
+    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
+    ContentFactory factory = new ContentFactory(finder);
+    
+    // Clear the components from the main menu
+    contentPane.removeAll();
+    
+    // Setup the text field where NPC communications will appear
     textField = new JLabel("Put some text here");
     textField.setBounds(0, 320, 320, 400);
     textField.setOpaque(true);
@@ -56,40 +168,77 @@ public class BernsteinBlaster extends JApplication implements KeyListener
     textField.setForeground(Color.GREEN);
     contentPane.add(textField);
     
-    viz = new Visualization();
-    viz.addKeyListener(this);
+    // Create the stage for the main portion of the game containing the ship
+    // sprites and the player model
+    gameViz = new Stage(50);
+    gameViz.addKeyListener(this);
     
-    ship = factory.createContent("spaceship.png");
-    ship.setScale(0.1, 0.1);
-    currX = 600;
-    currY = 655;
-    ship.setLocation(currX, currY);
-    
+    // Construct and add the star background
     stars = factory.createContent("stars.png");
     stars.setScale(0.8, 0.8);
     stars.setLocation(0, 0);
+    gameViz.add(stars);
     
-    viz.add(stars);
-    viz.add(ship);
+    // Construct and add the ship player model
+    ship = factory.createContent("spaceship.png", 4);
+    ship.setScale(0.1, 0.1);
+    currX = 450;
+    currY = 655;
+    ship.setLocation(currX, currY);
+    gameViz.add(ship);
     
-    view = viz.getView();
-    view.setBounds(320, 0, width - 300, height);
-    view.setBackground(Color.WHITE);
+    // Add the VisualizationView of the main game section to the content pane
+    gameView = gameViz.getView();
+    gameView.setBounds(320, 0, width - 300, height);
+    gameView.setBackground(Color.WHITE);
+    gameView.setBorder(new MatteBorder(5, 5, 5, 5, new Color(96, 198, 45)));
+    contentPane.add(gameView);
     
-    contentPane.add(view);
-  }
-  
-  public static void main(String[] args) throws InvocationTargetException, InterruptedException
-  {
-    SwingUtilities.invokeAndWait(new BernsteinBlaster(1280, 720));
+    // Create the Stage for the NPC
+    bernViz = new Stage(50);
+    
+    // Create and add the background of the NPC
+    blur = factory.createContent("blur.png", 4);
+    blur.setLocation(0, 0);
+    blur.setScale(0.5, 0.5);
+    bernViz.add(blur);
+    
+    // Create and add the NPC without the jaw 
+    bernNPC = factory.createContent("no_jaw.png", 4);
+    bernNPC.setLocation(0, 45);
+    bernNPC.setScale(0.9, 0.9);
+    bernViz.add(bernNPC);
+    
+    // Create and add the NPC's jaw
+    jaw = factory.createContent("jaw.png", 4);
+    jaw.setLocation(155, 190);
+    bernViz.add(jaw);
+    
+    // Create and setup the VisualizationView of the NPC portion of the panel
+    bernView = bernViz.getView();
+    bernView.setBounds(0, 0, 320, 320);
+    bernView.setBackground(Color.BLACK);
+    bernView.setBorder(new MatteBorder(5, 5, 5, 5, new Color(96, 198, 45)));
+    contentPane.add(bernView);
+    
+    // Stop the music from the main menu
+    menuMusic.stop();
+    
+    // Add the application as a metronome listener to be able to move the NPC/s
+    // jaw at each tick and start the metronome
+    talk.addListener(this);
+    talk.start();
+    
+    // Refresh the content pane for the changes to be visible
+    contentPane.repaint();
   }
 
   @Override
-  public void keyPressed(KeyEvent arg0)
+  public void keyPressed(KeyEvent stroke)
   {
     char key;
     
-    key = arg0.getKeyChar();
+    key = stroke.getKeyChar();
     
     ship.setScale(0.1, 0.1);
     ship.setLocation(currX, currY);
@@ -104,7 +253,13 @@ public class BernsteinBlaster extends JApplication implements KeyListener
       ship.setLocation(currX += 10, currY);
     }
     
-    viz.repaint();
+    if (key == ' ')
+    {
+      
+    }
+    
+    
+    gameViz.repaint();
   }
 
   @Override
@@ -121,4 +276,42 @@ public class BernsteinBlaster extends JApplication implements KeyListener
     
   }
 
+  @Override
+  public void actionPerformed(ActionEvent button)
+  {
+    System.out.println(button.getActionCommand());
+    if (button.getActionCommand().equals("START"))
+    {
+      setupGame();
+    }
+  }
+  
+  @Override
+  public void stop()
+  {
+    menuMusic.stop();
+    talk.stop();
+  }
+  
+  @Override
+  public void start()
+  {
+    menuMusic.start();
+    talk.start();
+  }
+
+  @Override
+  public void handleTick(int tick)
+  {
+    if (jawUp) {
+      jaw.setLocation(155, 210);
+      jawUp = false;
+    }
+    else {
+      jaw.setLocation(155, 190);
+      jawUp = true;
+    }
+    
+    bernViz.repaint();
+  } 
 }
