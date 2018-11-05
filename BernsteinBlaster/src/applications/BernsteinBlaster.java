@@ -1,6 +1,7 @@
 package applications;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -16,6 +17,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
 
@@ -32,10 +34,11 @@ import visual.statik.sampled.ContentFactory;
 public class BernsteinBlaster extends JApplication implements KeyListener, ActionListener, MetronomeListener
 { 
   private static final Color BORDER_COLOR = new Color(168, 13, 142);
+  private static final MatteBorder BORDER = new MatteBorder(4, 4, 4, 4, BORDER_COLOR);
   
   private JPanel contentPane;
   private Visualization menuViz;
-  private Stage gameViz, bernViz; 
+  private Stage gameStage, bernStage;
   private TransformableContent ship, jaw;
   private int currX, currY;
   private Clip menuMusic, laserSound;
@@ -45,11 +48,13 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   public BernsteinBlaster(String[] args, int width, int height)
   {
     super(args, width, height);
+    talk = new Metronome(100);
   }
   
   public BernsteinBlaster(int width, int height)
   {
     super(width, height);
+    talk = new Metronome(100);
   }
 
   @Override
@@ -58,8 +63,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     contentPane = (JPanel) this.getContentPane();
     contentPane.setLayout(null);
     contentPane.setBackground(Color.BLACK);
-    
-    talk = new Metronome();
     
     setupMenu();
   }
@@ -75,7 +78,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
    */
   private void setupMenu()
   {
-    JButton start, highScores;
+    JButton start, highScores, credits;
     VisualizationView view;
     TransformableContent logo, stars;
     
@@ -92,7 +95,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     start.setOpaque(true);
     start.setBackground(Color.BLACK);
     //startButton.setForeground(Color.GREEN);
-    start.setBorder(new MatteBorder(3, 3, 3, 3, BORDER_COLOR));
+    start.setBorder(BORDER);
     contentPane.add(start);
     
     // Setup the highscores button and add it to the panel
@@ -101,8 +104,16 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     highScores.setOpaque(true);
     highScores.setBackground(Color.BLACK);
     //highScores.setForeground(Color.GREEN);
-    highScores.setBorder(new MatteBorder(3, 3, 3, 3, BORDER_COLOR));
+    highScores.setBorder(BORDER);
     contentPane.add(highScores);
+    
+    // Setup the credits and acknowledgments button
+    credits = new JButton("CREDITS & ACKNOWLEDGMENTS");
+    credits.setBounds(width - 200, height - 50, 200, 50);
+    credits.setOpaque(true);
+    credits.setBackground(Color.BLACK);
+    credits.setBorder(BORDER);
+    contentPane.add(credits);
     
     // Visualization for the main menu containing the stars background as well
     // as the game logo
@@ -131,8 +142,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     // Add the application as a listener of both the main menu buttons
     start.addActionListener(this);
     highScores.addActionListener(this);
+    credits.addActionListener(this);
     
-    // Attempt the start the menu background music
+    // Attempt to start the menu background music
     try
     {
       menuMusic = AudioSystem.getClip();
@@ -166,20 +178,20 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     textField.setBounds(0, 320, 320, 400);
     textField.setOpaque(true);
     textField.setBackground(Color.BLACK);
-    textField.setBorder(new MatteBorder(5, 5, 5, 5, BORDER_COLOR));
+    textField.setBorder(BORDER);
     textField.setForeground(BORDER_COLOR);
     contentPane.add(textField);
     
     // Create the stage for the main portion of the game containing the ship
     // sprites and the player model
-    gameViz = new Stage(50);
-    gameViz.addKeyListener(this);
+    gameStage = new Stage(50);
+    gameStage.addKeyListener(this);
     
     // Construct and add the star background
     stars = factory.createContent("stars.png");
     stars.setScale(0.8, 0.8);
     stars.setLocation(0, 0);
-    gameViz.add(stars);
+    gameStage.add(stars);
     
     // Construct and add the ship player model
     ship = factory.createContent("spaceship.png", 4);
@@ -187,40 +199,40 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     currX = 450;
     currY = 655;
     ship.setLocation(currX, currY);
-    gameViz.add(ship);
+    gameStage.add(ship);
     
     // Add the VisualizationView of the main game section to the content pane
-    gameView = gameViz.getView();
+    gameView = gameStage.getView();
     gameView.setBounds(320, 0, width - 300, height);
     gameView.setBackground(Color.WHITE);
-    gameView.setBorder(new MatteBorder(5, 5, 5, 5, BORDER_COLOR));
+    gameView.setBorder(BORDER);
     contentPane.add(gameView);
     
     // Create the Stage for the NPC
-    bernViz = new Stage(50);
+    bernStage = new Stage(50);
     
     // Create and add the background of the NPC
     blur = factory.createContent("blur.png", 4);
     blur.setLocation(0, 0);
     blur.setScale(0.5, 0.5);
-    bernViz.add(blur);
+    bernStage.add(blur);
     
     // Create and add the NPC without the jaw 
     bernNPC = factory.createContent("no_jaw.png", 4);
     bernNPC.setLocation(0, 45);
     bernNPC.setScale(0.9, 0.9);
-    bernViz.add(bernNPC);
+    bernStage.add(bernNPC);
     
     // Create and add the NPC's jaw
     jaw = factory.createContent("jaw.png", 4);
     jaw.setLocation(155, 190);
-    bernViz.add(jaw);
+    bernStage.add(jaw);
     
     // Create and setup the VisualizationView of the NPC portion of the panel
-    bernView = bernViz.getView();
+    bernView = bernStage.getView();
     bernView.setBounds(0, 0, 320, 320);
     bernView.setBackground(Color.BLACK);
-    bernView.setBorder(new MatteBorder(5, 5, 5, 5, BORDER_COLOR));
+    bernView.setBorder(BORDER);
     contentPane.add(bernView);
     
     // Stop the music from the main menu
@@ -232,6 +244,45 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     talk.start();
     
     // Refresh the content pane for the changes to be visible
+    contentPane.repaint();
+  }
+  
+  private void setupCredits()
+  {
+    JLabel authors, audio;
+    Visualization creditViz;
+    VisualizationView creditView;
+    TransformableContent stars;
+    
+    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
+    ContentFactory factory = new ContentFactory(finder);
+    
+    contentPane.removeAll();
+    
+    authors = new JLabel("Authors", SwingConstants.CENTER);
+    authors.setBounds(width / 2 - 60, 20, 120, 50);
+    authors.setOpaque(true);
+    authors.setBackground(Color.BLACK);
+    authors.setForeground(BORDER_COLOR);
+    authors.setFont(new Font(Font.SERIF, Font.PLAIN, 36));
+    contentPane.add(authors);
+    
+    audio = new JLabel("Audio");
+    audio.setBounds(0, 200, 500, 100);
+    audio.setForeground(Color.WHITE);
+    contentPane.add(audio);
+    
+    creditViz = new Visualization();
+    
+    stars = factory.createContent("stars.png", 4);
+    stars.setScale(1.1, 1);
+    stars.setLocation(0, 0);
+    creditViz.add(stars);
+    
+    creditView = creditViz.getView();
+    creditView.setBounds(0, 0, width, height);
+    contentPane.add(creditView);
+    
     contentPane.repaint();
   }
 
@@ -261,7 +312,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     }
     
     
-    gameViz.repaint();
+    gameStage.repaint();
   }
 
   @Override
@@ -285,6 +336,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     if (button.getActionCommand().equals("START"))
     {
       setupGame();
+    }
+    
+    if (button.getActionCommand().equals("CREDITS & ACKNOWLEDGMENTS"))
+    {
+      setupCredits();
     }
   }
   
@@ -314,6 +370,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       jawUp = true;
     }
     
-    bernViz.repaint();
+    bernStage.repaint();
   } 
 }
