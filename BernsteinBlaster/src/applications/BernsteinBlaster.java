@@ -91,7 +91,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     start.setBounds(400, 550, 150, 50);
     start.setOpaque(true);
     start.setBackground(Color.BLACK);
-    //startButton.setForeground(Color.GREEN);
     start.setBorder(BORDER);
     contentPane.add(start);
     
@@ -100,7 +99,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     highScores.setBounds(730, 550, 150, 50);
     highScores.setOpaque(true);
     highScores.setBackground(Color.BLACK);
-    //highScores.setForeground(Color.GREEN);
     highScores.setBorder(BORDER);
     contentPane.add(highScores);
     
@@ -150,10 +148,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     // Attempt to start the menu background music
     try
     {
-      menuMusic = AudioSystem.getClip();
-      menuMusic.open(AudioSystem.getAudioInputStream(new File("MenuMusic.wav")));
-      menuMusic.start();
-      menuPlaying = true;
+      if (!menuPlaying) {
+        menuMusic = AudioSystem.getClip();
+        menuMusic.open(AudioSystem.getAudioInputStream(new File("MenuMusic.wav")));
+        menuMusic.start();
+        menuPlaying = true;
+      }
     }
     catch (LineUnavailableException | IOException | UnsupportedAudioFileException e)
     {
@@ -290,6 +290,58 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     contentPane.repaint();
   }
 
+  private void setupHighscores()
+  {
+    TransformableContent scoreLogo, stars, asteroidContent, first, second, third;
+    Stage scoreStage;
+    VisualizationView scoreView;
+    Asteroid asteroid;
+    
+    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
+    ContentFactory factory = new ContentFactory(finder);
+    
+    contentPane.removeAll();
+    
+    scoreStage = new Stage(50);
+    
+    stars = factory.createContent("stars.png");
+    stars.setScale(1.1, 1);
+    stars.setLocation(0, 0);
+    scoreStage.add(stars);
+    
+    asteroidContent = factory.createContent("Asteroid.png", 4);
+    asteroid = new Asteroid(asteroidContent, width, height);
+    asteroid.setScale(0.08, 0.08);
+    scoreStage.add(asteroid);
+    scoreStage.start();
+    
+    scoreLogo = factory.createContent("Highscores.png", 4);
+    scoreLogo.setLocation((width / 2) - 255, 20);
+    scoreLogo.setScale(0.85,  0.85);
+    scoreStage.add(scoreLogo);
+    
+    first = factory.createContent("one.png", 4);
+    first.setLocation((width / 4), 150);
+    first.setScale(0.75, 0.75);
+    scoreStage.add(first);
+    
+    second = factory.createContent("two.png", 4);
+    second.setLocation((width / 4), 250);
+    second.setScale(0.75, 0.75);
+    scoreStage.add(second);
+    
+    third = factory.createContent("three.png", 4);
+    third.setLocation((width / 4), 350);
+    third.setScale(0.75, 0.75);
+    scoreStage.add(third);
+    
+    scoreView = scoreStage.getView();
+    scoreView.setBounds(0, 0, width, height);
+    contentPane.add(scoreView);
+    
+    contentPane.repaint();
+  }
+  
   @Override
   public void keyPressed(KeyEvent stroke)
   {
@@ -319,14 +371,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void keyReleased(KeyEvent arg0)
   {
-    // TODO Auto-generated method stub
     
   }
 
   @Override
   public void keyTyped(KeyEvent arg0)
   {
-    // TODO Auto-generated method stub
     
   }
 
@@ -342,6 +392,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     if (button.getActionCommand().equals("CREDITS & ACKNOWLEDGMENTS"))
     {
       setupCredits();
+    }
+    
+    if (button.getActionCommand().equals("HIGHSCORES"))
+    {
+      setupHighscores();
     }
   }
   
