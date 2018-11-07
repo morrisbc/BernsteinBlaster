@@ -22,39 +22,35 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
 
 import app.JApplication;
-import event.Metronome;
-import event.MetronomeListener;
 import io.ResourceFinder;
+import sprites.Asteroid;
+import sprites.Jaw;
 import visual.Visualization;
 import visual.VisualizationView;
 import visual.dynamic.described.Stage;
 import visual.statik.TransformableContent;
 import visual.statik.sampled.ContentFactory;
 
-public class BernsteinBlaster extends JApplication implements KeyListener, ActionListener, MetronomeListener
+public class BernsteinBlaster extends JApplication implements KeyListener, ActionListener
 { 
   private static final Color BORDER_COLOR = new Color(168, 13, 142);
   private static final MatteBorder BORDER = new MatteBorder(4, 4, 4, 4, BORDER_COLOR);
   
   private JPanel contentPane;
-  private Visualization menuViz;
-  private Stage gameStage, bernStage;
-  private TransformableContent ship, jaw;
+  private Stage menuStage;
+  private TransformableContent ship;
   private int currX, currY;
   private Clip menuMusic, laserSound;
-  private Metronome talk;
-  private boolean jawUp = true;
+  private boolean menuPlaying;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
     super(args, width, height);
-    talk = new Metronome(100);
   }
   
   public BernsteinBlaster(int width, int height)
   {
     super(width, height);
-    talk = new Metronome(100);
   }
 
   @Override
@@ -80,7 +76,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   {
     JButton start, highScores, credits;
     VisualizationView view;
-    TransformableContent logo, stars;
+    TransformableContent logo, stars, asteroidContent;
+    Asteroid asteroid;
     
     ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
     ContentFactory factory = new ContentFactory(finder);
@@ -109,7 +106,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     // Setup the credits and acknowledgments button
     credits = new JButton("CREDITS & ACKNOWLEDGMENTS");
-    credits.setBounds(width - 200, height - 50, 200, 50);
+    credits.setBounds(width - 275, height - 50, 275, 50);
     credits.setOpaque(true);
     credits.setBackground(Color.BLACK);
     credits.setBorder(BORDER);
@@ -117,21 +114,27 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     // Visualization for the main menu containing the stars background as well
     // as the game logo
-    menuViz = new Visualization();
+    menuStage = new Stage(50);
     
     // Create the background content and add it to the Visualization
     stars = factory.createContent("stars.png");
     stars.setScale(1.1, 1);
     stars.setLocation(0, 0);
-    menuViz.add(stars);
+    menuStage.add(stars);
+    
+    asteroidContent = factory.createContent("Asteroid.png", 4);
+    asteroid = new Asteroid(asteroidContent, width, height);
+    asteroid.setScale(0.08, 0.08);
+    menuStage.add(asteroid);
+    menuStage.start();
     
     // Create the logo content and add it to the Visualization
     logo = factory.createContent("Bernstein.png", 4);
     logo.setLocation((width/2) - 239, (height/4));
-    menuViz.add(logo);
+    menuStage.add(logo);
     
     // Create the VisualizationView and set the bounds to match the window
-    view = menuViz.getView();
+    view = menuStage.getView();
     view.setBounds(0, 0, width, height);
     view.setBackground(Color.BLACK);
     contentPane.add(view);
@@ -150,6 +153,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       menuMusic = AudioSystem.getClip();
       menuMusic.open(AudioSystem.getAudioInputStream(new File("MenuMusic.wav")));
       menuMusic.start();
+      menuPlaying = true;
     }
     catch (LineUnavailableException | IOException | UnsupportedAudioFileException e)
     {
@@ -163,9 +167,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
    */
   private void setupGame()
   {
+    Stage gameStage, bernStage;
     VisualizationView gameView, bernView;
     JLabel textField;
-    TransformableContent stars, bernNPC, blur;
+    TransformableContent stars, bernNPC, blur, jawContent;
+    Jaw jaw;
     
     ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
     ContentFactory factory = new ContentFactory(finder);
@@ -200,6 +206,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     currY = 655;
     ship.setLocation(currX, currY);
     gameStage.add(ship);
+    gameStage.start();
     
     // Add the VisualizationView of the main game section to the content pane
     gameView = gameStage.getView();
@@ -209,7 +216,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     contentPane.add(gameView);
     
     // Create the Stage for the NPC
-    bernStage = new Stage(50);
+    bernStage = new Stage(200);
     
     // Create and add the background of the NPC
     blur = factory.createContent("blur.png", 4);
@@ -224,9 +231,10 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     bernStage.add(bernNPC);
     
     // Create and add the NPC's jaw
-    jaw = factory.createContent("jaw.png", 4);
-    jaw.setLocation(155, 190);
+    jawContent = factory.createContent("jaw.png", 4);
+    jaw = new Jaw(jawContent, 155, 190);
     bernStage.add(jaw);
+    bernStage.start();
     
     // Create and setup the VisualizationView of the NPC portion of the panel
     bernView = bernStage.getView();
@@ -237,11 +245,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     // Stop the music from the main menu
     menuMusic.stop();
-    
-    // Add the application as a metronome listener to be able to move the NPC/s
-    // jaw at each tick and start the metronome
-    talk.addListener(this);
-    talk.start();
+    menuPlaying = false;
     
     // Refresh the content pane for the changes to be visible
     contentPane.repaint();
@@ -308,11 +312,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (key == ' ')
     {
-      
+      System.out.println("Pew");
     }
-    
-    
-    gameStage.repaint();
   }
 
   @Override
@@ -348,28 +349,15 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   public void stop()
   {
     menuMusic.stop();
-    talk.stop();
+    menuPlaying = false;
   }
   
   @Override
   public void start()
   {
-    menuMusic.start();
-    talk.start();
+    if (!menuPlaying) {
+      menuMusic.start();
+      menuPlaying = true;
+    }
   }
-
-  @Override
-  public void handleTick(int tick)
-  {
-    if (jawUp) {
-      jaw.setLocation(155, 210);
-      jawUp = false;
-    }
-    else {
-      jaw.setLocation(155, 190);
-      jawUp = true;
-    }
-    
-    bernStage.repaint();
-  } 
 }
