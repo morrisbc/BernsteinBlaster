@@ -249,9 +249,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameStage.add(ship);
     
     enemyContent = factory.createContent("bear.png", 4);
-    enemy = new Enemy(enemyContent, width, height);
-    enemy.setScale(0.1, 0.1);
-    gameStage.add(enemy);
+    for (int i = 0; i < 10; i++) 
+    {
+      enemy = new Enemy(enemyContent, width, height);
+      enemy.setScale(0.05, 0.05);
+      gameStage.add(enemy);
+    }
     gameStage.start();
     
     // Add the VisualizationView of the main game section to the content pane

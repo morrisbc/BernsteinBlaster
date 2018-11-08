@@ -19,7 +19,7 @@ public class Enemy extends AbstractSprite
     this.maxY = height;
     rng = new Random();
     x = rng.nextDouble() * maxX;
-    y = -15.0;
+    y = rng.nextDouble() * -250.0;
     setLocation(x, y);
     setVisible(true);
   }
@@ -31,13 +31,13 @@ public class Enemy extends AbstractSprite
   }
 
   @Override
-  public void handleTick(int arg0)
+  public void handleTick(int tick)
   {
     y += 3;
     if (y > maxY)
     {
       x = rng.nextDouble() * maxX;
-      y = -15.0;
+      y = rng.nextDouble() * -250.0;
     }
     setLocation(x, y);
     setRotation(angle += 0.1);
