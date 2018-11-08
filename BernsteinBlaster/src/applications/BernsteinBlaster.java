@@ -30,6 +30,7 @@ import visual.dynamic.described.Stage;
 import visual.statik.TransformableContent;
 import visual.statik.sampled.ContentFactory;
 
+
 public class BernsteinBlaster extends JApplication implements KeyListener, ActionListener
 { 
   private static final Color BORDER_COLOR = new Color(254, 45, 194);
@@ -41,7 +42,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private TransformableContent ship;
   private int currX, currY;
   private Clip menuMusic;
-  private boolean menuPlaying;
+  private boolean menuPlaying, muted;
+  private String state;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
@@ -60,6 +62,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     contentPane.setLayout(null);
     contentPane.setBackground(Color.BLACK);
     
+    muted = false;
     setupMenu();
   }
   
@@ -85,6 +88,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     // Clear the content pane. This isn't necessary on startup but will be after the 
     // implementation of an in game quit button
     contentPane.removeAll();
+    
+    state = "MENU";
     
     // Setup the start button and add it to the panel
     start = new JButton("START");
@@ -153,11 +158,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     start.addActionListener(this);
     highScores.addActionListener(this);
     credits.addActionListener(this);
+    menuStage.addKeyListener(this);
     
     // Attempt to start the menu background music
     try
     {
-      if (!menuPlaying) {
+      if (!menuPlaying && !muted) {
         menuMusic = AudioSystem.getClip();
         menuMusic.open(AudioSystem.getAudioInputStream(new File("MenuMusic.wav")));
         menuMusic.start();
@@ -189,6 +195,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     // Clear the components from the main menu
     contentPane.removeAll();
+    
+    state = "GAME";
     
     back = new JButton("MENU");
     back.setBounds(0, height - 54, 320, 54);
@@ -290,6 +298,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     contentPane.removeAll();
     
+    state = "CREDITS";
+    
     creditStage = new Stage(50);
     
     stars = factory.createContent("stars.png", 4);
@@ -311,6 +321,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     creditView.setBounds(0, 0, width, height);
     contentPane.add(creditView);
     
+    creditStage.addKeyListener(this);
+    
     contentPane.repaint();
   }
 
@@ -326,6 +338,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     ContentFactory factory = new ContentFactory(finder);
     
     contentPane.removeAll();
+    
+    state = "HIGHSCORES";
     
     scoreStage = new Stage(50);
     
@@ -385,6 +399,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     contentPane.add(scoreView);
     
     back.addActionListener(this);
+    scoreStage.addKeyListener(this);
     
     contentPane.repaint();
   }
@@ -392,31 +407,49 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void keyPressed(KeyEvent stroke)
   {
-    char key;
-    
+    char key; 
     key = stroke.getKeyChar();
     
-    ship.setScale(0.1, 0.1);
-    ship.setLocation(currX, currY);
-    
-    if (key == 'a' && currX > 0)
+    if (state.equals("GAME"))
     {
-      ship.setLocation(currX -= 10, currY);
+      ship.setScale(0.1, 0.1);
+      ship.setLocation(currX, currY);
+      
+      if (key == 'a' && currX > 0)
+      {
+        ship.setLocation(currX -= 10, currY);
+      }
+      
+      if (key == 'd' && currX < 900)
+      {
+        ship.setLocation(currX += 10, currY);
+      }
+      
+      if (key == ' ')
+      {
+        System.out.println("Pew");
+      }
     }
     
-    if (key == 'd' && currX < 900)
+    if (key == KeyEvent.VK_ESCAPE)
     {
-      ship.setLocation(currX += 10, currY);
+      setupMenu();
     }
     
-    if (key == ' ')
+    if (key == 'm')
     {
-      System.out.println("Pew");
-    }
-    
-    if (key == 'q')
-    {
-      System.exit(0);
+      if (!menuPlaying)
+      {
+        menuMusic.start();
+        menuPlaying = true;
+        muted = false;
+      }
+      else
+      {
+        menuMusic.stop();
+        menuPlaying = false;
+        muted = true;
+      }
     }
   }
 
@@ -459,7 +492,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void start()
   {
-    if (!menuPlaying) {
+    if (!menuPlaying && !muted) {
       menuMusic.start();
       menuPlaying = true;
     }

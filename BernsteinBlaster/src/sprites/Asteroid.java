@@ -40,7 +40,7 @@ public class Asteroid extends AbstractSprite
       y = rng.nextDouble() * maxY;
     }
     setLocation(x, y);
-    setRotation(rng.nextDouble());
+    setRotation(angle += 0.5);
   }
 
 }
