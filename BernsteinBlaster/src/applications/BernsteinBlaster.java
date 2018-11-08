@@ -77,7 +77,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
    */
   private void setupMenu()
   {
-    JButton start, highScores, credits;
+    JButton start, highScores, credits, controls;
     VisualizationView view;
     TransformableContent logo, stars, asteroidContent;
     Asteroid asteroid;
@@ -96,7 +96,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     start.setBounds(400, 550, 150, 50);
     start.setContentAreaFilled(false);
     start.setOpaque(true);
-    start.setForeground(BORDER_COLOR);
+    start.setForeground(Color.WHITE);
     start.setBackground(Color.BLACK);
     start.setFont(BUTTON_FONT);
     start.setBorder(BORDER);
@@ -107,7 +107,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     highScores.setBounds(730, 550, 150, 50);
     highScores.setContentAreaFilled(false);
     highScores.setOpaque(true);
-    highScores.setForeground(BORDER_COLOR);
+    highScores.setForeground(Color.WHITE);
     highScores.setBackground(Color.BLACK);
     highScores.setFont(BUTTON_FONT);
     highScores.setBorder(BORDER);
@@ -118,11 +118,21 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     credits.setBounds(width - 150, height - 50, 150, 50);
     credits.setContentAreaFilled(false);
     credits.setOpaque(true);
-    credits.setForeground(BORDER_COLOR);
+    credits.setForeground(Color.WHITE);
     credits.setBackground(Color.BLACK);
     credits.setFont(BUTTON_FONT);
     credits.setBorder(BORDER);
     contentPane.add(credits);
+    
+    controls = new JButton("CONTROLS");
+    controls.setBounds(0, height - 50, 150, 50);
+    controls.setContentAreaFilled(false);
+    controls.setOpaque(true);
+    controls.setForeground(Color.WHITE);
+    controls.setBackground(Color.BLACK);
+    controls.setFont(BUTTON_FONT);
+    controls.setBorder(BORDER);
+    contentPane.add(controls);
     
     // Visualization for the main menu containing the stars background as well
     // as the game logo
@@ -158,6 +168,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     start.addActionListener(this);
     highScores.addActionListener(this);
     credits.addActionListener(this);
+    controls.addActionListener(this);
     menuStage.addKeyListener(this);
     
     // Attempt to start the menu background music
@@ -202,7 +213,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     back.setBounds(0, height - 54, 320, 54);
     back.setContentAreaFilled(false);
     back.setOpaque(true);
-    back.setForeground(BORDER_COLOR);
+    back.setForeground(Color.WHITE);
     back.setBorder(BORDER);
     back.setFont(BUTTON_FONT);
     back.setBackground(Color.BLACK);
@@ -347,7 +358,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     back.setBounds((width / 2) - 75, height - 70, 150, 50);
     back.setContentAreaFilled(false);
     back.setOpaque(true);
-    back.setForeground(BORDER_COLOR);
+    back.setForeground(Color.WHITE);
     back.setBorder(BORDER);
     back.setFont(BUTTON_FONT);
     back.setBackground(Color.BLACK);
