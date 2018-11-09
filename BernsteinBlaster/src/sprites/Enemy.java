@@ -18,7 +18,7 @@ public class Enemy extends AbstractSprite
     this.maxX = width;
     this.maxY = height;
     rng = new Random();
-    x = rng.nextDouble() * maxX;
+    x = rng.nextDouble() * (maxX - content.getBounds2D(true).getWidth());
     y = rng.nextDouble() * -250.0;
     setLocation(x, y);
     setVisible(true);

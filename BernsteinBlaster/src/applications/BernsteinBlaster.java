@@ -23,6 +23,7 @@ import javax.swing.border.MatteBorder;
 import app.JApplication;
 import io.ResourceFinder;
 import sprites.Asteroid;
+import sprites.Bullet;
 import sprites.Enemy;
 import sprites.Jaw;
 import visual.VisualizationView;
@@ -418,10 +419,48 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     contentPane.repaint();
   }
   
+  private void setupControls()
+  {
+    Stage controlsStage;
+    VisualizationView controlsView;
+    TransformableContent stars, asteroidContent;
+    Asteroid asteroid;
+    
+    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
+    ContentFactory factory = new ContentFactory(finder);
+    
+    contentPane.removeAll();
+    
+    controlsStage = new Stage(50);
+    
+    // Create the background content and add it to the Visualization
+    stars = factory.createContent("stars.png");
+    stars.setScale(1.1, 1);
+    stars.setLocation(0, 0);
+    controlsStage.add(stars);
+    
+    asteroidContent = factory.createContent("Asteroid.png", 4);
+    asteroid = new Asteroid(asteroidContent, width, height);
+    asteroid.setScale(0.08, 0.08);
+    controlsStage.add(asteroid);
+    controlsStage.start();
+    
+    controlsView = controlsStage.getView();
+    controlsView.setBounds(0, 0, width, height);
+    controlsView.setBackground(Color.BLACK);
+    contentPane.add(controlsView);
+    
+    controlsStage.addKeyListener(this);
+    
+    contentPane.repaint();
+  }
+  
   @Override
   public void keyPressed(KeyEvent stroke)
   {
     char key; 
+    Bullet bullet;
+    
     key = stroke.getKeyChar();
     
     if (state.equals("GAME"))
@@ -494,6 +533,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (button.getActionCommand().equals("MENU")) 
       setupMenu();
+    
+    if (button.getActionCommand().equals("CONTROLS"))
+      setupControls();
   }
   
   @Override
