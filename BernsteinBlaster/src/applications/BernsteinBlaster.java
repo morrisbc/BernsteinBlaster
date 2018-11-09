@@ -423,7 +423,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   {
     Stage controlsStage;
     VisualizationView controlsView;
-    TransformableContent stars, asteroidContent;
+    TransformableContent stars, asteroidContent, controls;
     Asteroid asteroid;
     
     ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
@@ -444,6 +444,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     asteroid.setScale(0.08, 0.08);
     controlsStage.add(asteroid);
     controlsStage.start();
+    
+    controls = factory.createContent("Controls.png", 4);
+    controls.setScale(0.85, 0.85);
+    controls.setLocation((width / 2) - 200, 20);
+    controlsStage.add(controls);
     
     controlsView = controlsStage.getView();
     controlsView.setBounds(0, 0, width, height);
