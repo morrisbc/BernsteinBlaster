@@ -17,6 +17,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
 
@@ -24,6 +25,7 @@ import app.JApplication;
 import io.ResourceFinder;
 import sprites.Asteroid;
 import sprites.Bullet;
+import sprites.CreditSprite;
 import sprites.Enemy;
 import sprites.Jaw;
 import visual.VisualizationView;
@@ -39,7 +41,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final Font BUTTON_FONT = new Font("Arial Black", Font.BOLD, 16);
   
   private JPanel contentPane;
-  private Stage menuStage;
+  private Stage menuStage, gameStage;
   private TransformableContent ship;
   private int currX, currY;
   private Clip menuMusic;
@@ -194,9 +196,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
    */
   private void setupGame()
   {
-    Stage gameStage, bernStage;
+    Stage bernStage;
     VisualizationView gameView, bernView;
-    JLabel textField;
+    JTextField textField;
     JButton back;
     TransformableContent stars, bernNPC, blur, jawContent, enemyContent;
     Jaw jaw;
@@ -222,7 +224,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     back.addActionListener(this);
     
     // Setup the text field where NPC communications will appear
-    textField = new JLabel("Put some text here");
+    textField = new JTextField("Put some text here");
     textField.setBounds(0, 320, 320, 350);
     textField.setOpaque(true);
     textField.setBackground(Color.BLACK);
@@ -305,8 +307,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   {
     Stage creditStage;
     VisualizationView creditView;
-    TransformableContent stars, logo, asteroidContent;
+    TransformableContent stars, logoContent, asteroidContent;
     Asteroid asteroid;
+    CreditSprite logoSprite;
     
     ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
     ContentFactory factory = new ContentFactory(finder);
@@ -326,16 +329,16 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     asteroid = new Asteroid(asteroidContent, width, height);
     asteroid.setScale(0.08, 0.08);
     creditStage.add(asteroid);
-    creditStage.start();
     
-    logo = factory.createContent("Bernstein.png", 4);
-    logo.setLocation((width/2) - 239, (height/4));
-    creditStage.add(logo);
+    logoContent = factory.createContent("Bernstein.png", 4);
+    logoSprite = new CreditSprite(logoContent, (width/2) - 239, (height/4));
+    creditStage.add(logoSprite);
     
     creditView = creditStage.getView();
     creditView.setBounds(0, 0, width, height);
     contentPane.add(creditView);
     
+    creditStage.start();
     creditStage.addKeyListener(this);
     
     contentPane.repaint();
@@ -463,8 +466,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void keyPressed(KeyEvent stroke)
   {
-    char key; 
-    Bullet bullet;
+    char key;
     
     key = stroke.getKeyChar();
     
