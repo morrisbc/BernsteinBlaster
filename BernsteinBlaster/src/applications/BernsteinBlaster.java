@@ -6,8 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.sound.sampled.AudioSystem;
@@ -178,8 +180,10 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     try
     {
       if (!menuPlaying && !muted) {
+        InputStream in = finder.findInputStream("MenuMusic.wav");
+        BufferedInputStream bis = new BufferedInputStream(in);
         menuMusic = AudioSystem.getClip();
-        menuMusic.open(AudioSystem.getAudioInputStream(new File("MenuMusic.wav")));
+        menuMusic.open(AudioSystem.getAudioInputStream(bis));
         menuMusic.start();
         menuPlaying = true;
       }
@@ -187,6 +191,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     catch (LineUnavailableException | IOException | UnsupportedAudioFileException e)
     {
       System.out.println("Exception");
+      System.out.println(e.toString());
     }
   }
   
