@@ -18,7 +18,7 @@ public class Ship extends AbstractSprite implements KeyListener
     this.content = content;
     this.minX = minX;
     this.maxX = maxX;
-    health = 1;
+    health = 3;
     x = 450;
     y = 655;
     setLocation(x, y);

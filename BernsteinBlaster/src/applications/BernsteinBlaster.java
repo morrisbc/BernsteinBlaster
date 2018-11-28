@@ -43,6 +43,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final Color BORDER_COLOR = new Color(254, 45, 194);
   private static final MatteBorder BORDER = new MatteBorder(4, 4, 4, 4, BORDER_COLOR);
   private static final Font BUTTON_FONT = new Font("Arial Black", Font.BOLD, 16);
+  private static final Font SCORE_FONT  = new Font("Arial Black", Font.BOLD, 24);
   
   private JPanel contentPane;
   private Stage menuStage, gameStage;
@@ -50,6 +51,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private boolean menuPlaying, muted;
   private String state;
   private Ship ship;
+  private int score;
+  private JLabel scoreLabel;
+  TransformableContent threeHearts, twoHearts, oneHeart;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
@@ -206,7 +210,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     VisualizationView gameView, bernView;
     JTextField textField;
     JButton back;
-    JLabel score;
     TransformableContent stars, bernNPC, blur, jawContent, enemyContent, shipContent;
     Jaw jaw;
     Enemy enemy;
@@ -239,18 +242,19 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     textField.setForeground(BORDER_COLOR);
     contentPane.add(textField);
     
-    score = new JLabel("00000000");
-    score.setFont(BUTTON_FONT);
-    score.setBounds(1175, 0, 100, 30);
-    score.setForeground(Color.WHITE);
-    contentPane.add(score);
+    score = 0;
+    scoreLabel = new JLabel(String.format("%08d", score));
+    scoreLabel.setFont(SCORE_FONT);
+    scoreLabel.setBounds(1135, 5, 150, 30);
+    scoreLabel.setForeground(Color.WHITE);
+    contentPane.add(scoreLabel);
     
     // Create the stage for the main portion of the game containing the ship
     // sprites and the player model
     gameStage = new Stage(50);
     
     // Construct and add the star background
-    stars = factory.createContent("stars.png");
+    stars = factory.createContent("stars.png", 4);
     stars.setScale(0.8, 0.8);
     stars.setLocation(0, 0);
     gameStage.add(stars);
@@ -270,6 +274,22 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       enemy.setScale(0.05, 0.05);
       gameStage.add(enemy);
     }
+    
+    oneHeart = factory.createContent("one_heart.png", 4);
+    oneHeart.setScale(0.07, 0.07);
+    oneHeart.setLocation(0, -25);
+    gameStage.add(oneHeart);
+    
+    twoHearts = factory.createContent("two_hearts.png", 4);
+    twoHearts.setScale(0.07, 0.07);
+    twoHearts.setLocation(0, -25);
+    gameStage.add(twoHearts);
+    
+    threeHearts = factory.createContent("full_hearts.png", 4);
+    threeHearts.setScale(0.07, 0.07);
+    threeHearts.setLocation(0, -25);
+    gameStage.add(threeHearts);
+    
     gameStage.start();
     gameStage.addKeyListener(this);
     gameStage.getMetronome().addListener(this);
@@ -486,7 +506,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     ContentFactory factory = new ContentFactory(finder);
     
     ship.setVisible(false);
-    gameOver = factory.createContent("Game-Over.png");
+    gameOver = factory.createContent("Game-Over.png", 4);
     gameOver.setLocation(258, height * 0.4);
     gameStage.add(gameOver);
     gameStage.stop();
@@ -576,5 +596,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     {
       gameOver();
     }
+    score++;
+    scoreLabel.setText(String.format("%08d", score));
   }
 }
