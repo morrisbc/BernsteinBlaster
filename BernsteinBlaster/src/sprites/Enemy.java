@@ -8,16 +8,24 @@ import visual.statik.TransformableContent;
 public class Enemy extends AbstractSprite
 {
   private TransformableContent content;
-  double maxX, maxY, x, y;
-  Random rng;
+  private double maxX, maxY, x, y;
+  private Ship protagonist;
+  private boolean hit;
+  private Random rng;
+  private int id;
   
-  public Enemy(TransformableContent content, int width, int height)
+  private static int idNum = 0;
+  
+  public Enemy(TransformableContent content, int width, int height, Ship protagonist)
   {
     super();
     this.content = content;
     this.maxX = width;
     this.maxY = height;
-    rng = new Random();
+    this.protagonist = protagonist;
+    hit = false;
+    id = idNum++;
+    rng = new Random(System.currentTimeMillis());
     x = rng.nextDouble() * (maxX - content.getBounds2D(true).getWidth());
     y = rng.nextDouble() * -250.0;
     setLocation(x, y);
@@ -38,9 +46,15 @@ public class Enemy extends AbstractSprite
     {
       x = rng.nextDouble() * maxX;
       y = rng.nextDouble() * -250.0;
+      hit = false;
     }
     setLocation(x, y);
-    setRotation(angle += 0.1);
+    
+    if (intersects(protagonist) && x > 0 && x < maxX && y > 0 && y < maxY && !hit) 
+    {
+      hit = true;
+      protagonist.setHealth(protagonist.getHealth() - 1);
+      System.out.println("Hit by, ID: " + id + " Health: " + protagonist.getHealth());
+    }
   }
-  
 }
