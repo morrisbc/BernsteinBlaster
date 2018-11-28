@@ -17,6 +17,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -205,6 +206,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     VisualizationView gameView, bernView;
     JTextField textField;
     JButton back;
+    JLabel score;
     TransformableContent stars, bernNPC, blur, jawContent, enemyContent, shipContent;
     Jaw jaw;
     Enemy enemy;
@@ -236,6 +238,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     textField.setBorder(BORDER);
     textField.setForeground(BORDER_COLOR);
     contentPane.add(textField);
+    
+    score = new JLabel("00000000");
+    score.setFont(BUTTON_FONT);
+    score.setBounds(1175, 0, 100, 30);
+    score.setForeground(Color.WHITE);
+    contentPane.add(score);
     
     // Create the stage for the main portion of the game containing the ship
     // sprites and the player model

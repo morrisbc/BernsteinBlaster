@@ -14,7 +14,7 @@ public class Enemy extends AbstractSprite
   private Random rng;
   private int id;
   
-  private static int idNum = 0;
+  private static int idCounter = 0;
   
   public Enemy(TransformableContent content, int width, int height, Ship protagonist)
   {
@@ -24,7 +24,7 @@ public class Enemy extends AbstractSprite
     this.maxY = height;
     this.protagonist = protagonist;
     hit = false;
-    id = idNum++;
+    id = idCounter++;
     rng = new Random(System.currentTimeMillis());
     x = rng.nextDouble() * (maxX - content.getBounds2D(true).getWidth());
     y = rng.nextDouble() * -250.0;
