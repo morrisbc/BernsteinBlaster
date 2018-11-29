@@ -69,6 +69,16 @@ public class Ship extends AbstractSprite implements KeyListener
       System.out.println("Pew");
     }
   }
+  
+  public double getX()
+  {
+    return x;
+  }
+  
+  public double getY()
+  {
+    return y;
+  }
 
   @Override
   public void keyReleased(KeyEvent key)

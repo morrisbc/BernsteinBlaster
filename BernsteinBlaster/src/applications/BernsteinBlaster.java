@@ -10,7 +10,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -27,12 +26,12 @@ import app.JApplication;
 import event.MetronomeListener;
 import io.ResourceFinder;
 import sprites.Asteroid;
+import sprites.Bullet;
 import sprites.CreditSprite;
 import sprites.Enemy;
 import sprites.Jaw;
 import sprites.Ship;
 import visual.VisualizationView;
-import visual.dynamic.described.AbstractSprite;
 import visual.dynamic.described.Stage;
 import visual.statik.TransformableContent;
 import visual.statik.sampled.ContentFactory;
@@ -44,6 +43,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final MatteBorder BORDER = new MatteBorder(4, 4, 4, 4, BORDER_COLOR);
   private static final Font BUTTON_FONT = new Font("Arial Black", Font.BOLD, 16);
   private static final Font SCORE_FONT  = new Font("Arial Black", Font.BOLD, 24);
+  private static final ResourceFinder FINDER = ResourceFinder.createInstance(resources.Marker.class);
+  private static final ContentFactory FACTORY = new ContentFactory(FINDER);
   
   private JPanel contentPane;
   private Stage menuStage, gameStage;
@@ -91,9 +92,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     VisualizationView view;
     TransformableContent logo, stars, asteroidContent;
     Asteroid asteroid;
-    
-    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
-    ContentFactory factory = new ContentFactory(finder);
     
     // Clear the content pane. This isn't necessary on startup but will be after the 
     // implementation of an in game quit button
@@ -149,19 +147,19 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     menuStage = new Stage(50);
     
     // Create the background content and add it to the Visualization
-    stars = factory.createContent("stars.png");
+    stars = FACTORY.createContent("stars.png");
     stars.setScale(1.1, 1);
     stars.setLocation(0, 0);
     menuStage.add(stars);
     
-    asteroidContent = factory.createContent("Asteroid.png", 4);
+    asteroidContent = FACTORY.createContent("Asteroid.png", 4);
     asteroid = new Asteroid(asteroidContent, width, height);
     asteroid.setScale(0.08, 0.08);
     menuStage.add(asteroid);
     menuStage.start();
     
     // Create the logo content and add it to the Visualization
-    logo = factory.createContent("Bernstein.png", 4);
+    logo = FACTORY.createContent("Bernstein.png", 4);
     logo.setLocation((width/2) - 239, (height/4));
     menuStage.add(logo);
     
@@ -185,7 +183,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     try
     {
       if (!menuPlaying && !muted) {
-        InputStream in = finder.findInputStream("MenuMusic.wav");
+        InputStream in = FINDER.findInputStream("MenuMusic.wav");
         BufferedInputStream bis = new BufferedInputStream(in);
         menuMusic = AudioSystem.getClip();
         menuMusic.open(AudioSystem.getAudioInputStream(bis));
@@ -213,9 +211,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     TransformableContent stars, bernNPC, blur, jawContent, enemyContent, shipContent;
     Jaw jaw;
     Enemy enemy;
-    
-    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
-    ContentFactory factory = new ContentFactory(finder);
     
     // Clear the components from the main menu
     contentPane.removeAll();
@@ -254,13 +249,13 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameStage = new Stage(50);
     
     // Construct and add the star background
-    stars = factory.createContent("stars.png", 4);
+    stars = FACTORY.createContent("stars.png", 4);
     stars.setScale(0.8, 0.8);
     stars.setLocation(0, 0);
     gameStage.add(stars);
     
     // Construct and add the ship player model
-    shipContent = factory.createContent("spaceship.png", 4);
+    shipContent = FACTORY.createContent("spaceship.png", 4);
     ship = new Ship(shipContent, 0, 900);
     ship.setScale(0.1, 0.1);
     
@@ -269,23 +264,23 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     for (int i = 0; i < 10; i++) 
     {
-      enemyContent = factory.createContent("bear.png", 4);
+      enemyContent = FACTORY.createContent("bear.png", 4);
       enemy = new Enemy(enemyContent, width - 300, height, ship);
       enemy.setScale(0.05, 0.05);
       gameStage.add(enemy);
     }
     
-    oneHeart = factory.createContent("one_heart.png", 4);
+    oneHeart = FACTORY.createContent("one_heart.png", 4);
     oneHeart.setScale(0.07, 0.07);
     oneHeart.setLocation(0, -25);
     gameStage.add(oneHeart);
     
-    twoHearts = factory.createContent("two_hearts.png", 4);
+    twoHearts = FACTORY.createContent("two_hearts.png", 4);
     twoHearts.setScale(0.07, 0.07);
     twoHearts.setLocation(0, -25);
     gameStage.add(twoHearts);
     
-    threeHearts = factory.createContent("full_hearts.png", 4);
+    threeHearts = FACTORY.createContent("full_hearts.png", 4);
     threeHearts.setScale(0.07, 0.07);
     threeHearts.setLocation(0, -25);
     gameStage.add(threeHearts);
@@ -305,19 +300,19 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     bernStage = new Stage(200);
     
     // Create and add the background of the NPC
-    blur = factory.createContent("blur.png", 4);
+    blur = FACTORY.createContent("blur.png", 4);
     blur.setLocation(0, 0);
     blur.setScale(0.5, 0.5);
     bernStage.add(blur);
     
     // Create and add the NPC without the jaw 
-    bernNPC = factory.createContent("no_jaw.png", 4);
+    bernNPC = FACTORY.createContent("no_jaw.png", 4);
     bernNPC.setLocation(0, 45);
     bernNPC.setScale(0.9, 0.9);
     bernStage.add(bernNPC);
     
     // Create and add the NPC's jaw
-    jawContent = factory.createContent("jaw.png", 4);
+    jawContent = FACTORY.createContent("jaw.png", 4);
     jaw = new Jaw(jawContent, 157, 190);
     jaw.setScale(0.92, 0.92);
     bernStage.add(jaw);
@@ -346,26 +341,23 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     Asteroid asteroid;
     CreditSprite logoSprite;
     
-    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
-    ContentFactory factory = new ContentFactory(finder);
-    
     contentPane.removeAll();
     
     state = "CREDITS";
     
     creditStage = new Stage(50);
     
-    stars = factory.createContent("stars.png", 4);
+    stars = FACTORY.createContent("stars.png", 4);
     stars.setScale(1.1, 1);
     stars.setLocation(0, 0);
     creditStage.add(stars);
     
-    asteroidContent = factory.createContent("Asteroid.png", 4);
+    asteroidContent = FACTORY.createContent("Asteroid.png", 4);
     asteroid = new Asteroid(asteroidContent, width, height);
     asteroid.setScale(0.08, 0.08);
     creditStage.add(asteroid);
     
-    logoContent = factory.createContent("Bernstein.png", 4);
+    logoContent = FACTORY.createContent("Bernstein.png", 4);
     logoSprite = new CreditSprite(logoContent, (width/2) - 239, (height/4));
     creditStage.add(logoSprite);
     
@@ -387,9 +379,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     VisualizationView scoreView;
     Asteroid asteroid;
     
-    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
-    ContentFactory factory = new ContentFactory(finder);
-    
     contentPane.removeAll();
     
     state = "HIGHSCORES";
@@ -406,43 +395,43 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     back.setBackground(Color.BLACK);
     contentPane.add(back);
     
-    stars = factory.createContent("stars.png");
+    stars = FACTORY.createContent("stars.png");
     stars.setScale(1.1, 1);
     stars.setLocation(0, 0);
     scoreStage.add(stars);
     
-    asteroidContent = factory.createContent("Asteroid.png", 4);
+    asteroidContent = FACTORY.createContent("Asteroid.png", 4);
     asteroid = new Asteroid(asteroidContent, width, height);
     asteroid.setScale(0.08, 0.08);
     scoreStage.add(asteroid);
     scoreStage.start();
     
-    scoreLogo = factory.createContent("Highscores.png", 4);
+    scoreLogo = FACTORY.createContent("Highscores.png", 4);
     scoreLogo.setLocation((width / 2) - 255, 20);
     scoreLogo.setScale(0.85,  0.85);
     scoreStage.add(scoreLogo);
     
-    first = factory.createContent("one.png", 4);
+    first = FACTORY.createContent("one.png", 4);
     first.setLocation((width / 4), 150);
     first.setScale(0.75, 0.75);
     scoreStage.add(first);
     
-    second = factory.createContent("two.png", 4);
+    second = FACTORY.createContent("two.png", 4);
     second.setLocation((width / 4), 250);
     second.setScale(0.75, 0.75);
     scoreStage.add(second);
     
-    third = factory.createContent("three.png", 4);
+    third = FACTORY.createContent("three.png", 4);
     third.setLocation((width / 4), 350);
     third.setScale(0.75, 0.75);
     scoreStage.add(third);
     
-    fourth = factory.createContent("four.png", 4);
+    fourth = FACTORY.createContent("four.png", 4);
     fourth.setLocation((width / 4), 450);
     fourth.setScale(0.75, 0.75);
     scoreStage.add(fourth);
     
-    fifth = factory.createContent("five.png", 4);
+    fifth = FACTORY.createContent("five.png", 4);
     fifth.setLocation((width / 4), 550);
     fifth.setScale(0.75, 0.75);
     scoreStage.add(fifth);
@@ -464,26 +453,23 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     TransformableContent stars, asteroidContent, controls;
     Asteroid asteroid;
     
-    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
-    ContentFactory factory = new ContentFactory(finder);
-    
     contentPane.removeAll();
     
     controlsStage = new Stage(50);
     
     // Create the background content and add it to the Visualization
-    stars = factory.createContent("stars.png");
+    stars = FACTORY.createContent("stars.png");
     stars.setScale(1.1, 1);
     stars.setLocation(0, 0);
     controlsStage.add(stars);
     
-    asteroidContent = factory.createContent("Asteroid.png", 4);
+    asteroidContent = FACTORY.createContent("Asteroid.png", 4);
     asteroid = new Asteroid(asteroidContent, width, height);
     asteroid.setScale(0.08, 0.08);
     controlsStage.add(asteroid);
     controlsStage.start();
     
-    controls = factory.createContent("Controls.png", 4);
+    controls = FACTORY.createContent("Controls.png", 4);
     controls.setScale(0.85, 0.85);
     controls.setLocation((width / 2) - 200, 20);
     controlsStage.add(controls);
@@ -502,11 +488,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   {
     TransformableContent gameOver;
     
-    ResourceFinder finder = ResourceFinder.createInstance(resources.Marker.class);
-    ContentFactory factory = new ContentFactory(finder);
-    
     ship.setVisible(false);
-    gameOver = factory.createContent("Game-Over.png", 4);
+    gameOver = FACTORY.createContent("Game-Over.png", 4);
     gameOver.setLocation(258, height * 0.4);
     gameStage.add(gameOver);
     gameStage.stop();
@@ -518,6 +501,14 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     char key;
     
     key = stroke.getKeyChar();
+    
+    if (key == ' ')
+    {
+       TransformableContent bulletContent = FACTORY.createContent("full_hearts.png", 4);
+       Bullet bullet = new Bullet(bulletContent, ship.getX() + 10, ship.getY() - 15, gameStage);
+       bullet.setScale(0.02, 0.02);
+       gameStage.add(bullet);
+    }
     
     if (key == KeyEvent.VK_ESCAPE)
     {
