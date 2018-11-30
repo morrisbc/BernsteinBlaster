@@ -11,7 +11,7 @@ public class Enemy extends AbstractSprite
   private double maxX, maxY, x, y;
   private Ship protagonist;
   private int health;
-  private boolean hit;
+  private boolean hitShip;
   private Random rng;
   private int id;
   
@@ -25,7 +25,7 @@ public class Enemy extends AbstractSprite
     this.maxY = height;
     this.protagonist = protagonist;
     health = 3;
-    hit = false;
+    hitShip = false;
     id = idCounter++;
     rng = new Random(System.currentTimeMillis());
     x = rng.nextDouble() * maxX;
@@ -58,13 +58,13 @@ public class Enemy extends AbstractSprite
     {
       x = rng.nextDouble() * maxX;
       y = rng.nextDouble() * -250.0;
-      hit = false;
+      hitShip = false;
     }
     setLocation(x, y);
     
-    if (intersects(protagonist) && x > 0 && x < maxX && y > 0 && y < maxY && !hit) 
+    if (intersects(protagonist) && x > 0 && x < maxX && y > 0 && y < maxY && !hitShip) 
     {
-      hit = true;
+      hitShip = true;
       protagonist.setHealth(protagonist.getHealth() - 1);
       System.out.println("Hit by, ID: " + id + " Health: " + protagonist.getHealth());
     }

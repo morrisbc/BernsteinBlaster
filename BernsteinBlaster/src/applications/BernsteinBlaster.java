@@ -19,7 +19,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
 
@@ -46,16 +46,19 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final Font SCORE_FONT  = new Font("Arial Black", Font.BOLD, 24);
   private static final ResourceFinder FINDER = ResourceFinder.createInstance(resources.Marker.class);
   private static final ContentFactory FACTORY = new ContentFactory(FINDER);
+  private static final String MESSAGE = "Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit.";
   
   private JPanel contentPane;
   private Stage menuStage, gameStage;
-  private Clip menuMusic;
+  private Clip menuMusic, laser, gameMusic, defeat;
   private boolean menuPlaying, muted;
   private Ship ship;
   private int score;
   private JLabel scoreLabel;
+  private JTextArea textArea;
   private TransformableContent threeHearts, twoHearts, oneHeart;
   private ArrayList<Enemy> enemies;
+  private String state;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
@@ -93,6 +96,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     VisualizationView view;
     TransformableContent logo, stars, asteroidContent;
     Asteroid asteroid;
+    
+    state = "menu";
     
     // Clear the content pane. This isn't necessary on startup but will be after the 
     // implementation of an in game quit button
@@ -205,10 +210,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   {
     Stage bernStage;
     VisualizationView gameView, bernView;
-    JTextField textField;
     JButton back;
     TransformableContent stars, bernNPC, blur, jawContent, shipContent;
     Jaw jaw;
+    
+    state = "game";
     
     // Clear the components from the main menu
     contentPane.removeAll();
@@ -224,14 +230,14 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     contentPane.add(back);
     back.addActionListener(this);
     
-    // Setup the text field where NPC communications will appear
-    textField = new JTextField("Put some text here");
-    textField.setBounds(0, 320, 320, 350);
-    textField.setOpaque(true);
-    textField.setBackground(Color.BLACK);
-    textField.setBorder(BORDER);
-    textField.setForeground(BORDER_COLOR);
-    contentPane.add(textField);
+    // Setup the text area where NPC communications will appear
+    textArea = new JTextArea();
+    textArea.setBounds(0, 320, 320, 350);
+    textArea.setOpaque(true);
+    textArea.setBackground(Color.BLACK);
+    textArea.setBorder(BORDER);
+    textArea.setForeground(BORDER_COLOR);
+    contentPane.add(textArea);
     
     score = 0;
     scoreLabel = new JLabel(String.format("%08d", score));
@@ -323,6 +329,30 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     menuMusic.stop();
     menuPlaying = false;
     
+    try
+    {
+      InputStream in = FINDER.findInputStream("This_is_happening.wav");
+      BufferedInputStream bis = new BufferedInputStream(in);
+      gameMusic = AudioSystem.getClip();
+      gameMusic.open(AudioSystem.getAudioInputStream(bis));
+      gameMusic.start();
+      gameMusic.loop(Clip.LOOP_CONTINUOUSLY);
+      
+      in = FINDER.findInputStream("sfx_wpn_laser7.wav");
+      bis = new BufferedInputStream(in);
+      laser = AudioSystem.getClip();
+      laser.open(AudioSystem.getAudioInputStream(bis));
+      
+      in = FINDER.findInputStream("Defeat.wav");
+      bis = new BufferedInputStream(in);
+      defeat = AudioSystem.getClip();
+      defeat.open(AudioSystem.getAudioInputStream(bis));
+    }
+    catch (IOException | UnsupportedAudioFileException | LineUnavailableException e)
+    {
+      System.out.println(e.getMessage());
+    }
+    
     // Refresh the content pane for the changes to be visible
     contentPane.repaint();
   }
@@ -334,6 +364,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     TransformableContent stars, logoContent, asteroidContent;
     Asteroid asteroid;
     CreditSprite logoSprite;
+    
+    state = "credits";
     
     contentPane.removeAll();
     
@@ -370,6 +402,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     Stage scoreStage;
     VisualizationView scoreView;
     Asteroid asteroid;
+    
+    state = "highscores";
     
     contentPane.removeAll();
     
@@ -443,6 +477,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     TransformableContent stars, asteroidContent, controls;
     Asteroid asteroid;
     
+    state = "controls";
+    
     contentPane.removeAll();
     
     controlsStage = new Stage(50);
@@ -483,6 +519,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameOver.setLocation(258, height * 0.4);
     gameStage.add(gameOver);
     gameStage.stop();
+    gameMusic.stop();
+    defeat.start();
   }
   
   private void spawnEnemy()
@@ -495,6 +533,15 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     enemy.setScale(0.05, 0.05);
     enemies.add(enemy);
     gameStage.add(enemy);
+  }
+  
+  private void printMessage(String message)
+  {
+    textArea.setText("");
+    for (int i = 0; i < message.length(); i++) 
+    {
+     textArea.setText(textArea.getText() + message.charAt(i));
+    }
   }
   
   @Override
@@ -533,13 +580,15 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     key = stroke.getKeyChar();
     
-    if (key == ' ')
+    if (key == ' ' && state.equals("game"))
     {
        TransformableContent bulletContent = FACTORY.createContent("full_hearts.png", 4);
        Bullet bullet = new Bullet(bulletContent, ship.getX() + 10, ship.getY() - 15, 
            gameStage, enemies);
        bullet.setScale(0.02, 0.02);
        gameStage.add(bullet);
+       laser.setMicrosecondPosition(0);
+       laser.start();
     }
   }
 
@@ -574,6 +623,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   {
     menuMusic.stop();
     menuPlaying = false;
+    gameMusic.stop();
   }
   
   @Override
@@ -598,6 +648,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (enemies.size() < 10)
     {
+      score += (10 - enemies.size()) * 50;
+      scoreLabel.setText(String.format("%08d", score));
       spawnEnemy();
     }
   }

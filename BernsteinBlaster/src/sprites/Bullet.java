@@ -49,14 +49,13 @@ public class Bullet extends AbstractSprite
       if (intersects(e) && e.getBounds2D().getY() > 0)
       {
         e.setHealth(e.getHealth() - 1);
-        System.out.println(e.getHealth());
         if (e.getHealth() <= 0)
         {
           antagonists.remove(e);
           stage.remove(e);
-          stage.remove(this);
           break;
         }
+        stage.remove(this);
       }
     }
   }
