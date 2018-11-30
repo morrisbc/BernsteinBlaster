@@ -63,11 +63,6 @@ public class Ship extends AbstractSprite implements KeyListener
     {
       setLocation(x += 10, y);
     }
-    
-    if (key == ' ')
-    {
-      System.out.println("Pew");
-    }
   }
   
   public double getX()

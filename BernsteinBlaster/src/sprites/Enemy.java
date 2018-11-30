@@ -10,6 +10,7 @@ public class Enemy extends AbstractSprite
   private TransformableContent content;
   private double maxX, maxY, x, y;
   private Ship protagonist;
+  private int health;
   private boolean hit;
   private Random rng;
   private int id;
@@ -23,10 +24,11 @@ public class Enemy extends AbstractSprite
     this.maxX = width;
     this.maxY = height;
     this.protagonist = protagonist;
+    health = 3;
     hit = false;
     id = idCounter++;
     rng = new Random(System.currentTimeMillis());
-    x = rng.nextDouble() * (maxX - content.getBounds2D(true).getWidth());
+    x = rng.nextDouble() * maxX;
     y = rng.nextDouble() * -250.0;
     setLocation(x, y);
     setVisible(true);
@@ -37,11 +39,21 @@ public class Enemy extends AbstractSprite
   {
     return content;
   }
+  
+  public void setHealth(int health)
+  {
+    this.health = health;
+  }
+  
+  public int getHealth()
+  {
+    return health;
+  }
 
   @Override
   public void handleTick(int tick)
   {
-    y += 3;
+    y += 5;
     if (y > maxY)
     {
       x = rng.nextDouble() * maxX;

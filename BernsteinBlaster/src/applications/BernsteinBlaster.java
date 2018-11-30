@@ -10,6 +10,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -50,11 +51,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private Stage menuStage, gameStage;
   private Clip menuMusic;
   private boolean menuPlaying, muted;
-  private String state;
   private Ship ship;
   private int score;
   private JLabel scoreLabel;
-  TransformableContent threeHearts, twoHearts, oneHeart;
+  private TransformableContent threeHearts, twoHearts, oneHeart;
+  private ArrayList<Enemy> enemies;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
@@ -96,8 +97,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     // Clear the content pane. This isn't necessary on startup but will be after the 
     // implementation of an in game quit button
     contentPane.removeAll();
-    
-    state = "MENU";
     
     // Setup the start button and add it to the panel
     start = new JButton("START");
@@ -208,14 +207,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     VisualizationView gameView, bernView;
     JTextField textField;
     JButton back;
-    TransformableContent stars, bernNPC, blur, jawContent, enemyContent, shipContent;
+    TransformableContent stars, bernNPC, blur, jawContent, shipContent;
     Jaw jaw;
-    Enemy enemy;
     
     // Clear the components from the main menu
     contentPane.removeAll();
-    
-    state = "GAME";
     
     back = new JButton("MENU");
     back.setBounds(0, height - 54, 320, 54);
@@ -262,12 +258,10 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameStage.add(ship);
     gameStage.addKeyListener(ship);
     
+    enemies = new ArrayList<Enemy>();
     for (int i = 0; i < 10; i++) 
     {
-      enemyContent = FACTORY.createContent("bear.png", 4);
-      enemy = new Enemy(enemyContent, width - 300, height, ship);
-      enemy.setScale(0.05, 0.05);
-      gameStage.add(enemy);
+      spawnEnemy();
     }
     
     oneHeart = FACTORY.createContent("one_heart.png", 4);
@@ -343,8 +337,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     contentPane.removeAll();
     
-    state = "CREDITS";
-    
     creditStage = new Stage(50);
     
     stars = FACTORY.createContent("stars.png", 4);
@@ -380,8 +372,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     Asteroid asteroid;
     
     contentPane.removeAll();
-    
-    state = "HIGHSCORES";
     
     scoreStage = new Stage(50);
     
@@ -495,20 +485,24 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameStage.stop();
   }
   
+  private void spawnEnemy()
+  {
+    TransformableContent enemyContent;
+    Enemy enemy;
+    
+    enemyContent = FACTORY.createContent("bear.png", 4);
+    enemy = new Enemy(enemyContent, width - 300, height, ship);
+    enemy.setScale(0.05, 0.05);
+    enemies.add(enemy);
+    gameStage.add(enemy);
+  }
+  
   @Override
   public void keyPressed(KeyEvent stroke)
   {
     char key;
     
     key = stroke.getKeyChar();
-    
-    if (key == ' ')
-    {
-       TransformableContent bulletContent = FACTORY.createContent("full_hearts.png", 4);
-       Bullet bullet = new Bullet(bulletContent, ship.getX() + 10, ship.getY() - 15, gameStage);
-       bullet.setScale(0.02, 0.02);
-       gameStage.add(bullet);
-    }
     
     if (key == KeyEvent.VK_ESCAPE)
     {
@@ -535,7 +529,18 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void keyReleased(KeyEvent stroke)
   {
+    char key;
     
+    key = stroke.getKeyChar();
+    
+    if (key == ' ')
+    {
+       TransformableContent bulletContent = FACTORY.createContent("full_hearts.png", 4);
+       Bullet bullet = new Bullet(bulletContent, ship.getX() + 10, ship.getY() - 15, 
+           gameStage, enemies);
+       bullet.setScale(0.02, 0.02);
+       gameStage.add(bullet);
+    }
   }
 
   @Override
@@ -587,7 +592,13 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     {
       gameOver();
     }
+    
     score++;
     scoreLabel.setText(String.format("%08d", score));
+    
+    if (enemies.size() < 10)
+    {
+      spawnEnemy();
+    }
   }
 }
