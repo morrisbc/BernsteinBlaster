@@ -46,11 +46,10 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final Font SCORE_FONT  = new Font("Arial Black", Font.BOLD, 24);
   private static final ResourceFinder FINDER = ResourceFinder.createInstance(resources.Marker.class);
   private static final ContentFactory FACTORY = new ContentFactory(FINDER);
-  private static final String MESSAGE = "Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit.";
   
   private JPanel contentPane;
   private Stage menuStage, gameStage;
-  private Clip menuMusic, laser, gameMusic, defeat;
+  private Clip menuMusic, laser, gameMusic, defeat, shipDamage, enemyDamage;
   private boolean menuPlaying, muted;
   private Ship ship;
   private int score;
@@ -103,9 +102,19 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     // implementation of an in game quit button
     contentPane.removeAll();
     
+    controls = new JButton("CONTROLS");
+    controls.setBounds(145, 550, 150, 50);
+    controls.setContentAreaFilled(false);
+    controls.setOpaque(true);
+    controls.setForeground(Color.WHITE);
+    controls.setBackground(Color.BLACK);
+    controls.setFont(BUTTON_FONT);
+    controls.setBorder(BORDER);
+    contentPane.add(controls);
+    
     // Setup the start button and add it to the panel
     start = new JButton("START");
-    start.setBounds(400, 550, 150, 50);
+    start.setBounds(425, 550, 150, 50);
     start.setContentAreaFilled(false);
     start.setOpaque(true);
     start.setForeground(Color.WHITE);
@@ -116,7 +125,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     // Setup the highscores button and add it to the panel
     highScores = new JButton("HIGHSCORES");
-    highScores.setBounds(730, 550, 150, 50);
+    highScores.setBounds(705, 550, 150, 50);
     highScores.setContentAreaFilled(false);
     highScores.setOpaque(true);
     highScores.setForeground(Color.WHITE);
@@ -127,7 +136,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     // Setup the credits and acknowledgments button
     credits = new JButton("CREDITS");
-    credits.setBounds(width - 150, height - 50, 150, 50);
+    credits.setBounds(985, 550, 150, 50);
     credits.setContentAreaFilled(false);
     credits.setOpaque(true);
     credits.setForeground(Color.WHITE);
@@ -135,16 +144,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     credits.setFont(BUTTON_FONT);
     credits.setBorder(BORDER);
     contentPane.add(credits);
-    
-    controls = new JButton("CONTROLS");
-    controls.setBounds(0, height - 50, 150, 50);
-    controls.setContentAreaFilled(false);
-    controls.setOpaque(true);
-    controls.setForeground(Color.WHITE);
-    controls.setBackground(Color.BLACK);
-    controls.setFont(BUTTON_FONT);
-    controls.setBorder(BORDER);
-    contentPane.add(controls);
     
     // Visualization for the main menu containing the stars background as well
     // as the game logo
@@ -216,6 +215,44 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     state = "game";
     
+    // Stop the music from the main menu
+    menuMusic.stop();
+    menuPlaying = false;
+    
+    try
+    {
+      InputStream in = FINDER.findInputStream("This_is_happening.wav");
+      BufferedInputStream bis = new BufferedInputStream(in);
+      gameMusic = AudioSystem.getClip();
+      gameMusic.open(AudioSystem.getAudioInputStream(bis));
+      gameMusic.start();
+      gameMusic.loop(Clip.LOOP_CONTINUOUSLY);
+      
+      in = FINDER.findInputStream("sfx_wpn_laser7.wav");
+      bis = new BufferedInputStream(in);
+      laser = AudioSystem.getClip();
+      laser.open(AudioSystem.getAudioInputStream(bis));
+      
+      in = FINDER.findInputStream("sfx_exp_short_hard3.wav");
+      bis = new BufferedInputStream(in);
+      shipDamage = AudioSystem.getClip();
+      shipDamage.open(AudioSystem.getAudioInputStream(bis));
+      
+      in = FINDER.findInputStream("sfx_exp_shortest_hard5.wav");
+      bis = new BufferedInputStream(in);
+      enemyDamage = AudioSystem.getClip();
+      enemyDamage.open(AudioSystem.getAudioInputStream(bis));
+      
+      in = FINDER.findInputStream("Defeat.wav");
+      bis = new BufferedInputStream(in);
+      defeat = AudioSystem.getClip();
+      defeat.open(AudioSystem.getAudioInputStream(bis));
+    }
+    catch (IOException | UnsupportedAudioFileException | LineUnavailableException e)
+    {
+      System.out.println(e.getMessage());
+    }
+    
     // Clear the components from the main menu
     contentPane.removeAll();
     
@@ -258,7 +295,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     // Construct and add the ship player model
     shipContent = FACTORY.createContent("spaceship.png", 4);
-    ship = new Ship(shipContent, 0, 900);
+    ship = new Ship(shipContent, 0, 900, shipDamage);
     ship.setScale(0.1, 0.1);
     
     gameStage.add(ship);
@@ -325,34 +362,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     bernView.setBorder(BORDER);
     contentPane.add(bernView);
     
-    // Stop the music from the main menu
-    menuMusic.stop();
-    menuPlaying = false;
-    
-    try
-    {
-      InputStream in = FINDER.findInputStream("This_is_happening.wav");
-      BufferedInputStream bis = new BufferedInputStream(in);
-      gameMusic = AudioSystem.getClip();
-      gameMusic.open(AudioSystem.getAudioInputStream(bis));
-      gameMusic.start();
-      gameMusic.loop(Clip.LOOP_CONTINUOUSLY);
-      
-      in = FINDER.findInputStream("sfx_wpn_laser7.wav");
-      bis = new BufferedInputStream(in);
-      laser = AudioSystem.getClip();
-      laser.open(AudioSystem.getAudioInputStream(bis));
-      
-      in = FINDER.findInputStream("Defeat.wav");
-      bis = new BufferedInputStream(in);
-      defeat = AudioSystem.getClip();
-      defeat.open(AudioSystem.getAudioInputStream(bis));
-    }
-    catch (IOException | UnsupportedAudioFileException | LineUnavailableException e)
-    {
-      System.out.println(e.getMessage());
-    }
-    
     // Refresh the content pane for the changes to be visible
     contentPane.repaint();
   }
@@ -361,9 +370,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   {
     Stage creditStage;
     VisualizationView creditView;
-    TransformableContent stars, logoContent, asteroidContent;
+    TransformableContent stars, logoContent, asteroidContent, devContent, nameContent, charactersContent, bernsteinContent;
     Asteroid asteroid;
-    CreditSprite logoSprite;
+    CreditSprite logoSprite, devSprite, nameSprite, charactersSprite, bernsteinSprite;
     
     state = "credits";
     
@@ -384,6 +393,24 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     logoContent = FACTORY.createContent("Bernstein.png", 4);
     logoSprite = new CreditSprite(logoContent, (width/2) - 239, (height/4));
     creditStage.add(logoSprite);
+    
+    devContent = FACTORY.createContent("Developers.png", 4);
+    devSprite = new CreditSprite(devContent, (width/2) - 243.5, (height/4) + 550);
+    creditStage.add(devSprite);
+    
+    nameContent = FACTORY.createContent("Names.png", 4);
+    nameSprite = new CreditSprite(nameContent, (width/2) - 141, (height/4) + 650);
+    nameSprite.setScale(0.4, 0.4);
+    creditStage.add(nameSprite);
+    
+    charactersContent = FACTORY.createContent("Characters.png", 4);
+    charactersSprite = new CreditSprite(charactersContent, (width/2) - 245.5, (height/4) + 800);
+    creditStage.add(charactersSprite);
+    
+    bernsteinContent = FACTORY.createContent("Lord-Bernstein.png", 4);
+    bernsteinSprite = new CreditSprite(bernsteinContent, (width/2) - 330.6, (height/4) + 900);
+    bernsteinSprite.setScale(0.4, 0.4);
+    creditStage.add(bernsteinSprite);
     
     creditView = creditStage.getView();
     creditView.setBounds(0, 0, width, height);
@@ -529,20 +556,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     Enemy enemy;
     
     enemyContent = FACTORY.createContent("bear.png", 4);
-    enemy = new Enemy(enemyContent, width - 300, height, ship);
+    enemy = new Enemy(enemyContent, width - 300, height, ship, enemyDamage);
     enemy.setScale(0.05, 0.05);
     enemies.add(enemy);
     gameStage.add(enemy);
   }
   
-  private void printMessage(String message)
-  {
-    textArea.setText("");
-    for (int i = 0; i < message.length(); i++) 
-    {
-     textArea.setText(textArea.getText() + message.charAt(i));
-    }
-  }
   
   @Override
   public void keyPressed(KeyEvent stroke)
@@ -556,24 +575,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       if (state.equals("game"))
       {
         gameMusic.stop();
+        gameStage.stop();
       }
       setupMenu();
-    }
-    
-    if (key == 'm')
-    {
-      if (!menuPlaying)
-      {
-        menuMusic.start();
-        menuPlaying = true;
-        muted = false;
-      }
-      else
-      {
-        menuMusic.stop();
-        menuPlaying = false;
-        muted = true;
-      }
     }
   }
 
@@ -615,8 +619,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     if (button.getActionCommand().equals("HIGHSCORES"))
       setupHighscores();
     
-    if (button.getActionCommand().equals("MENU")) 
+    if (button.getActionCommand().equals("MENU"))
+    {
       setupMenu();
+      gameStage.stop();
+      gameMusic.stop();
+    }
     
     if (button.getActionCommand().equals("CONTROLS"))
       setupControls();
@@ -625,18 +633,13 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void stop()
   {
-    menuMusic.stop();
-    menuPlaying = false;
-    gameMusic.stop();
+    
   }
   
   @Override
   public void start()
   {
-    if (!menuPlaying && !muted) {
-      menuMusic.start();
-      menuPlaying = true;
-    }
+    
   }
 
   @Override
@@ -652,7 +655,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (enemies.size() < 10)
     {
-      score += (10 - enemies.size()) * 50;
+      score += (10 - enemies.size()) * 100;
       scoreLabel.setText(String.format("%08d", score));
       spawnEnemy();
     }

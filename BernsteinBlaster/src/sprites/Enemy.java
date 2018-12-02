@@ -2,6 +2,8 @@ package sprites;
 
 import java.util.Random;
 
+import javax.sound.sampled.Clip;
+
 import visual.dynamic.described.AbstractSprite;
 import visual.statik.TransformableContent;
 
@@ -13,8 +15,9 @@ public class Enemy extends AbstractSprite
   private int health;
   private boolean hitShip;
   private Random rng;
+  private Clip damageSound;
   
-  public Enemy(TransformableContent content, int width, int height, Ship protagonist)
+  public Enemy(TransformableContent content, int width, int height, Ship protagonist, Clip damageSound)
   {
     super();
     this.content = content;
@@ -23,6 +26,7 @@ public class Enemy extends AbstractSprite
     this.protagonist = protagonist;
     health = 3;
     hitShip = false;
+    this.damageSound = damageSound;
     rng = new Random(System.currentTimeMillis());
     x = rng.nextDouble() * maxX;
     y = rng.nextDouble() * -250.0;
@@ -36,7 +40,7 @@ public class Enemy extends AbstractSprite
     return content;
   }
   
-  public void setHealth(int health)
+  private void setHealth(int health)
   {
     this.health = health;
   }
@@ -44,6 +48,13 @@ public class Enemy extends AbstractSprite
   public int getHealth()
   {
     return health;
+  }
+  
+  public void takeDamage()
+  {
+    setHealth(getHealth() - 1);
+    damageSound.setMicrosecondPosition(0);
+    damageSound.start();
   }
 
   @Override
@@ -53,7 +64,7 @@ public class Enemy extends AbstractSprite
     if (y > maxY)
     {
       x = rng.nextDouble() * maxX;
-      y = rng.nextDouble() * -250.0;
+      y = rng.nextDouble() * -200;
       hitShip = false;
     }
     setLocation(x, y);
@@ -61,7 +72,7 @@ public class Enemy extends AbstractSprite
     if (intersects(protagonist) && x > 0 && x < maxX && y > 0 && y < maxY && !hitShip) 
     {
       hitShip = true;
-      protagonist.setHealth(protagonist.getHealth() - 1);
+      protagonist.takeDamage();
       System.out.println("Hit, Health: " + protagonist.getHealth());
     }
   }

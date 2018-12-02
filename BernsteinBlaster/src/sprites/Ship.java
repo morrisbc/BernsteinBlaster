@@ -3,6 +3,8 @@ package sprites;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.sound.sampled.Clip;
+
 import visual.dynamic.described.AbstractSprite;
 import visual.statik.TransformableContent;
 
@@ -11,14 +13,16 @@ public class Ship extends AbstractSprite implements KeyListener
   private TransformableContent content;
   private double minX, maxX, x, y;
   private int health;
+  private Clip damageSound;
   
-  public Ship(TransformableContent content, double minX, double maxX)
+  public Ship(TransformableContent content, double minX, double maxX, Clip damageSound)
   {
     super();
     this.content = content;
     this.minX = minX;
     this.maxX = maxX;
     health = 3;
+    this.damageSound = damageSound;
     x = 450;
     y = 655;
     setLocation(x, y);
@@ -37,7 +41,7 @@ public class Ship extends AbstractSprite implements KeyListener
     
   }
   
-  public void setHealth(int health)
+  private void setHealth(int health)
   {
     this.health = health;
   }
@@ -45,6 +49,13 @@ public class Ship extends AbstractSprite implements KeyListener
   public int getHealth()
   {
     return health;
+  }
+  
+  public void takeDamage()
+  {
+    setHealth(getHealth() - 1);
+    damageSound.setMicrosecondPosition(0);
+    damageSound.start();
   }
 
   @Override
