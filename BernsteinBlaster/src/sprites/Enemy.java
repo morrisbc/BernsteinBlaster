@@ -13,9 +13,6 @@ public class Enemy extends AbstractSprite
   private int health;
   private boolean hitShip;
   private Random rng;
-  private int id;
-  
-  private static int idCounter = 0;
   
   public Enemy(TransformableContent content, int width, int height, Ship protagonist)
   {
@@ -26,7 +23,6 @@ public class Enemy extends AbstractSprite
     this.protagonist = protagonist;
     health = 3;
     hitShip = false;
-    id = idCounter++;
     rng = new Random(System.currentTimeMillis());
     x = rng.nextDouble() * maxX;
     y = rng.nextDouble() * -250.0;
@@ -66,7 +62,7 @@ public class Enemy extends AbstractSprite
     {
       hitShip = true;
       protagonist.setHealth(protagonist.getHealth() - 1);
-      System.out.println("Hit by, ID: " + id + " Health: " + protagonist.getHealth());
+      System.out.println("Hit, Health: " + protagonist.getHealth());
     }
   }
 }

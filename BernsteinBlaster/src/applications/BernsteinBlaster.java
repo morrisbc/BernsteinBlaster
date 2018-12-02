@@ -553,6 +553,10 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (key == KeyEvent.VK_ESCAPE)
     {
+      if (state.equals("game"))
+      {
+        gameMusic.stop();
+      }
       setupMenu();
     }
     
@@ -582,10 +586,10 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (key == ' ' && state.equals("game"))
     {
-       TransformableContent bulletContent = FACTORY.createContent("full_hearts.png", 4);
-       Bullet bullet = new Bullet(bulletContent, ship.getX() + 10, ship.getY() - 15, 
+       TransformableContent bulletContent = FACTORY.createContent("Bullet.png", 4);
+       Bullet bullet = new Bullet(bulletContent, ship.getX() + 23.5, ship.getY() - 15, 
            gameStage, enemies);
-       bullet.setScale(0.02, 0.02);
+       bullet.setScale(0.1, 0.1);
        gameStage.add(bullet);
        laser.setMicrosecondPosition(0);
        laser.start();

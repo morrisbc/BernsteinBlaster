@@ -23,7 +23,6 @@ public class Bullet extends AbstractSprite
     this.stage = stage;
     this.antagonists = antagonists;
     setLocation(x, y);
-    setRotation(Math.PI / 2);
     setVisible(true);
   }
   
@@ -53,6 +52,7 @@ public class Bullet extends AbstractSprite
         {
           antagonists.remove(e);
           stage.remove(e);
+          stage.remove(this);
           break;
         }
         stage.remove(this);
