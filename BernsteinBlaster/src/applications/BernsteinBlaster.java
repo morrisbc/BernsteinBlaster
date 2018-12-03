@@ -46,11 +46,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final Font SCORE_FONT  = new Font("Arial Black", Font.BOLD, 24);
   private static final ResourceFinder FINDER = ResourceFinder.createInstance(resources.Marker.class);
   private static final ContentFactory FACTORY = new ContentFactory(FINDER);
+  private static final String BACKGROUND = "Space.png";
   
   private JPanel contentPane;
-  private Stage menuStage, gameStage;
+  private Stage menuStage, gameStage, creditStage;
   private Clip menuMusic, laser, gameMusic, defeat, shipDamage, enemyDamage;
-  private boolean menuPlaying, muted;
+  private boolean menuPlaying, muted, creditsPaused;
   private Ship ship;
   private int score;
   private JLabel scoreLabel;
@@ -58,6 +59,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private TransformableContent threeHearts, twoHearts, oneHeart;
   private ArrayList<Enemy> enemies;
   private String state;
+  private int creditTimer;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
@@ -150,7 +152,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     menuStage = new Stage(50);
     
     // Create the background content and add it to the Visualization
-    stars = FACTORY.createContent("stars.png");
+    stars = FACTORY.createContent(BACKGROUND);
     stars.setScale(1.1, 1);
     stars.setLocation(0, 0);
     menuStage.add(stars);
@@ -190,7 +192,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
         BufferedInputStream bis = new BufferedInputStream(in);
         menuMusic = AudioSystem.getClip();
         menuMusic.open(AudioSystem.getAudioInputStream(bis));
-        menuMusic.start();
+        //menuMusic.start();
         menuPlaying = true;
       }
     }
@@ -288,15 +290,15 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameStage = new Stage(50);
     
     // Construct and add the star background
-    stars = FACTORY.createContent("stars.png", 4);
+    stars = FACTORY.createContent(BACKGROUND, 4);
     stars.setScale(0.8, 0.8);
     stars.setLocation(0, 0);
     gameStage.add(stars);
     
     // Construct and add the ship player model
-    shipContent = FACTORY.createContent("spaceship.png", 4);
+    shipContent = FACTORY.createContent("Spaceship.png", 4);
     ship = new Ship(shipContent, 0, 900, shipDamage);
-    ship.setScale(0.1, 0.1);
+    ship.setScale(0.13, 0.13);
     
     gameStage.add(ship);
     gameStage.addKeyListener(ship);
@@ -368,56 +370,157 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   
   private void setupCredits()
   {
-    Stage creditStage;
+    JButton pause;
     VisualizationView creditView;
-    TransformableContent stars, logoContent, asteroidContent, devContent, nameContent, charactersContent, bernsteinContent;
+    TransformableContent content;
     Asteroid asteroid;
-    CreditSprite logoSprite, devSprite, nameSprite, charactersSprite, bernsteinSprite;
+    CreditSprite sprite;
     
     state = "credits";
     
     contentPane.removeAll();
     
+    pause = new JButton("||");
+    pause.setBounds(width - 60, height - 60, 50, 50);
+    pause.setContentAreaFilled(false);
+    pause.setOpaque(true);
+    pause.setForeground(Color.WHITE);
+    pause.setBackground(Color.BLACK);
+    pause.setFont(BUTTON_FONT);
+    pause.setBorder(BORDER);
+    contentPane.add(pause);
+    pause.addActionListener(this);
+    
     creditStage = new Stage(50);
     
-    stars = FACTORY.createContent("stars.png", 4);
-    stars.setScale(1.1, 1);
-    stars.setLocation(0, 0);
-    creditStage.add(stars);
+    content = FACTORY.createContent(BACKGROUND, 4);
+    content.setScale(1.1, 1);
+    content.setLocation(0, 0);
+    creditStage.add(content);
     
-    asteroidContent = FACTORY.createContent("Asteroid.png", 4);
-    asteroid = new Asteroid(asteroidContent, width, height);
+    content = FACTORY.createContent("Asteroid.png", 4);
+    asteroid = new Asteroid(content, width, height);
     asteroid.setScale(0.08, 0.08);
     creditStage.add(asteroid);
     
-    logoContent = FACTORY.createContent("Bernstein.png", 4);
-    logoSprite = new CreditSprite(logoContent, (width/2) - 239, (height/4));
-    creditStage.add(logoSprite);
+    content = FACTORY.createContent("Bernstein.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 239, (height/4));
+    creditStage.add(sprite);
     
-    devContent = FACTORY.createContent("Developers.png", 4);
-    devSprite = new CreditSprite(devContent, (width/2) - 243.5, (height/4) + 550);
-    creditStage.add(devSprite);
+    content = FACTORY.createContent("Developers.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 243.5, (height/4) + 550);
+    creditStage.add(sprite);
     
-    nameContent = FACTORY.createContent("Names.png", 4);
-    nameSprite = new CreditSprite(nameContent, (width/2) - 141, (height/4) + 650);
-    nameSprite.setScale(0.4, 0.4);
-    creditStage.add(nameSprite);
+    content = FACTORY.createContent("Names.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 141, (height/4) + 650);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
     
-    charactersContent = FACTORY.createContent("Characters.png", 4);
-    charactersSprite = new CreditSprite(charactersContent, (width/2) - 245.5, (height/4) + 800);
-    creditStage.add(charactersSprite);
+    content = FACTORY.createContent("Characters.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 245.5, (height/4) + 800);
+    creditStage.add(sprite);
     
-    bernsteinContent = FACTORY.createContent("Lord-Bernstein.png", 4);
-    bernsteinSprite = new CreditSprite(bernsteinContent, (width/2) - 330.6, (height/4) + 900);
-    bernsteinSprite.setScale(0.4, 0.4);
-    creditStage.add(bernsteinSprite);
+    content = FACTORY.createContent("Lord-Bernstein.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 330.6, (height/4) + 900);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Resources.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 231, (height/4) + 1000);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Visuals.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 60.6, (height/4) + 1100);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Asteroid-Word.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 63.4, (height/4) + 1150);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Asteroid-Link.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 515, (height/4) + 1200);
+    sprite.setScale(0.2, 0.2);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Courtesy.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 236.4, (height/4) + 1300);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("textcraft.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 124.5, (height/4) + 1350);
+    sprite.setScale(0.6, 0.6);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Audio.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 46.8, (height/4) + 1450);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Defeat-Words.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 180.4, (height/4) + 1500);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Kinetic-Words.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 229.8, (height/4) + 1550);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Happening-Words.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 238.2, (height/4) + 1600);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Courtesy-Audio.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 356.6, (height/4) + 1700);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("FMA-Logo.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 109, (height/4) + 1750);
+    creditStage.add(sprite);
     
     creditView = creditStage.getView();
     creditView.setBounds(0, 0, width, height);
     contentPane.add(creditView);
     
+    content = FACTORY.createContent("Courtesy-FX.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 410, (height/4) + 1900);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("OGA-Logo.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 40, (height/4) + 1950);
+    sprite.setScale(2, 2);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("512-FX.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 243.6, (height/4) + 2100);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("512-Link.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 330, (height/4) + 2150);
+    sprite.setScale(0.2, 0.2);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Acknowledgements.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 396.5, (height/4) + 2250);
+    creditStage.add(sprite);
+    
+    content = FACTORY.createContent("Bernstein-Thanks.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 402.2, (height/4) + 2350);
+    sprite.setScale(0.4, 0.4);
+    creditStage.add(sprite);
+    
+    creditTimer = 0;
     creditStage.start();
+    creditsPaused = false;
     creditStage.addKeyListener(this);
+    creditStage.getMetronome().addListener(this);
     
     contentPane.repaint();
   }
@@ -446,7 +549,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     back.setBackground(Color.BLACK);
     contentPane.add(back);
     
-    stars = FACTORY.createContent("stars.png");
+    stars = FACTORY.createContent(BACKGROUND);
     stars.setScale(1.1, 1);
     stars.setLocation(0, 0);
     scoreStage.add(stars);
@@ -511,7 +614,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     controlsStage = new Stage(50);
     
     // Create the background content and add it to the Visualization
-    stars = FACTORY.createContent("stars.png");
+    stars = FACTORY.createContent(BACKGROUND);
     stars.setScale(1.1, 1);
     stars.setLocation(0, 0);
     controlsStage.add(stars);
@@ -591,7 +694,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     if (key == ' ' && state.equals("game"))
     {
        TransformableContent bulletContent = FACTORY.createContent("Bullet.png", 4);
-       Bullet bullet = new Bullet(bulletContent, ship.getX() + 23.5, ship.getY() - 15, 
+       Bullet bullet = new Bullet(bulletContent, ship.getX() + 21, ship.getY() - 15, 
            gameStage, enemies);
        bullet.setScale(0.1, 0.1);
        gameStage.add(bullet);
@@ -628,6 +731,21 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (button.getActionCommand().equals("CONTROLS"))
       setupControls();
+    
+    if (button.getActionCommand().equals("||"))
+    {
+      if (creditsPaused)
+      {
+        creditStage.start();
+        creditsPaused = false;
+      }
+      else
+      {
+        creditStage.stop();
+        creditsPaused = true;
+      }
+    }
+      
   }
   
   @Override
@@ -645,19 +763,31 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void handleTick(int tick)
   {
-    if (ship.getHealth() <= 0)
+    if (state.equals("game"))
     {
-      gameOver();
+      if (ship.getHealth() <= 0)
+      {
+        gameOver();
+      }
+      
+      score++;
+      scoreLabel.setText(String.format("%08d", score));
+      
+      if (enemies.size() < 10)
+      {
+        score += (10 - enemies.size()) * 100;
+        scoreLabel.setText(String.format("%08d", score));
+        spawnEnemy();
+      }
     }
     
-    score++;
-    scoreLabel.setText(String.format("%08d", score));
-    
-    if (enemies.size() < 10)
+    if (state.equals("credits"))
     {
-      score += (10 - enemies.size()) * 100;
-      scoreLabel.setText(String.format("%08d", score));
-      spawnEnemy();
+      creditTimer++;
+      if (creditTimer > 900)
+      {
+        setupMenu();
+      }
     }
   }
 }

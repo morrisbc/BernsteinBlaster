@@ -32,7 +32,7 @@ public class CreditSprite extends AbstractSprite
     tickDelay++;
     if (tickDelay >= 15)
     {
-      y -= 5;
+      y -= 3;
       setLocation(x, y);
     }
   }
