@@ -65,8 +65,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final String           PAUSE = "||";
   private static final String           ASTEROID_FILE = "Asteroid.png";
   private static final String           BERNSTEIN_FILE = "Bernstein.png";
+  private static final String           MENU_STATE = "menu";
   private static final String           GAME_STATE = "game";
   private static final String           CREDIT_STATE = "credits";
+  private static final String           HIGHSCORES_STATE = "highscores";
+  private static final String           CONTROLS_STATE = "controls";
   private static final String           SCORE_FORMAT = "%08d";
   private static final Color            BORDER_COLOR = new Color(254, 45, 194);
   private static final MatteBorder      BORDER = new MatteBorder(4, 4, 4, 4, BORDER_COLOR);
@@ -96,7 +99,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final Random           RNG = new Random(System.currentTimeMillis());
   
   private JPanel                       contentPane;
-  private Stage                        menuStage, gameStage, creditStage, bernStage;
+  private Stage                        menuStage, gameStage, creditStage, bernStage, scoreStage,
+                                       controlsStage;
   private Clip                         menuMusic, laser, gameMusic, defeat, shipDamage, enemyDamage;
   private boolean                      menuPlaying, creditsPaused;
   private Ship                         ship;
@@ -173,7 +177,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     TransformableContent    logo, stars, asteroidContent;
     Asteroid                asteroid;
     
-    state = "menu";
+    state = MENU_STATE;
     
     // Clear the content pane. This isn't necessary on startup but will be after the 
     // implementation of an in game quit button
@@ -646,7 +650,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     JButton                     back;
     TransformableContent        scoreLogo, stars, asteroidContent, first, second, third, fourth,
                                 fifth;
-    Stage                       scoreStage;
     VisualizationView           scoreView;
     Asteroid                    asteroid;
     JLabel                      entry;
@@ -654,7 +657,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     // appropriately in the for loop that adds the labels
     int                         labelLocation;
     
-    state = "highscores";
+    state = HIGHSCORES_STATE;
     
     contentPane.removeAll();
     
@@ -744,13 +747,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private void setupControls()
   {
     JButton back;
-    Stage controlsStage;
     VisualizationView controlsView;
     TransformableContent stars, asteroidContent, controls, aDirection, dDirection, spaceDirection, 
                          escDirection;
     Asteroid asteroid;
     
-    state = "controls";
+    state = CONTROLS_STATE;
     
     contentPane.removeAll();
     
@@ -1038,7 +1040,36 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void stop()
   {
-    
+    switch (state)
+    {
+      case MENU_STATE:
+        menuMusic.stop();
+        menuStage.stop();
+        break;
+      case GAME_STATE:
+        gameStage.stop();
+        bernStage.stop();
+        gameMusic.stop();
+        break;
+      case CREDIT_STATE:
+        if (!creditsPaused)
+        {
+          creditStage.stop();
+          creditsPaused = false;
+        }
+        menuMusic.stop();
+        break;
+      case HIGHSCORES_STATE:
+        scoreStage.stop();
+        menuMusic.stop();
+        break;
+      case CONTROLS_STATE:
+        controlsStage.stop();
+        menuMusic.stop();
+        break;
+      default:
+        break;
+    }
   }
   
   /**
@@ -1047,7 +1078,36 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void start()
   {
-    
+    switch (state)
+    {
+      case MENU_STATE:
+        menuMusic.start();
+        menuStage.start();
+        break;
+      case GAME_STATE:
+        gameStage.start();
+        bernStage.start();
+        gameMusic.start();
+        break;
+      case CREDIT_STATE:
+        if (!creditsPaused)
+        {
+          creditStage.start();
+          creditsPaused = false;
+        }
+        menuMusic.start();
+        break;
+      case HIGHSCORES_STATE:
+        scoreStage.start();
+        menuMusic.start();
+        break;
+      case CONTROLS_STATE:
+        controlsStage.start();
+        menuMusic.start();
+        break;
+      default:
+        break;
+    }
   }
 
   /**
