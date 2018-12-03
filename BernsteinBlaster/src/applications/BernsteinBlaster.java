@@ -36,6 +36,7 @@ import sprites.Asteroid;
 import sprites.Bullet;
 import sprites.CreditSprite;
 import sprites.Enemy;
+import sprites.HealthBar;
 import sprites.Jaw;
 import sprites.Ship;
 import visual.VisualizationView;
@@ -224,6 +225,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     JButton back;
     TransformableContent stars, bernNPC, blur, jawContent, shipContent;
     Jaw jaw;
+    TransformableContent[] hearts;
+    HealthBar healthBar;
     
     state = "game";
     
@@ -319,20 +322,16 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       spawnEnemy();
     }
     
-    oneHeart = FACTORY.createContent("one_heart.png", 4);
-    oneHeart.setScale(0.07, 0.07);
-    oneHeart.setLocation(0, -25);
-    gameStage.add(oneHeart);
-    
-    twoHearts = FACTORY.createContent("two_hearts.png", 4);
-    twoHearts.setScale(0.07, 0.07);
-    twoHearts.setLocation(0, -25);
-    gameStage.add(twoHearts);
-    
+    hearts = new TransformableContent[3];
+    oneHeart = FACTORY.createContent("one_heart.png", 4);    
+    twoHearts = FACTORY.createContent("two_hearts.png", 4);        
     threeHearts = FACTORY.createContent("full_hearts.png", 4);
-    threeHearts.setScale(0.07, 0.07);
-    threeHearts.setLocation(0, -25);
-    gameStage.add(threeHearts);
+    hearts[0] = oneHeart;
+    hearts[1] = twoHearts;
+    hearts[2] = threeHearts;
+    healthBar = new HealthBar(0, -25, hearts, ship);
+    healthBar.setScale(0.07, 0.07);
+    gameStage.add(healthBar);
     
     gameStage.start();
     gameStage.addKeyListener(this);

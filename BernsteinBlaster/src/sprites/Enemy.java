@@ -28,7 +28,7 @@ public class Enemy extends AbstractSprite
     hitShip = false;
     this.damageSound = damageSound;
     rng = new Random(System.currentTimeMillis());
-    x = rng.nextDouble() * maxX;
+    x = rng.nextDouble() * (maxX - 10);
     y = rng.nextDouble() * -250.0;
     setLocation(x, y);
     setVisible(true);
