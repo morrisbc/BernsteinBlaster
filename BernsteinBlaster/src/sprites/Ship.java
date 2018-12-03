@@ -8,6 +8,12 @@ import javax.sound.sampled.Clip;
 import visual.dynamic.described.AbstractSprite;
 import visual.statik.TransformableContent;
 
+/**
+ * A Ship sprite within the game. This entity is the main character or protagonist.
+ * 
+ * @author Bryce Morris <morrisbc@dukes.jmu.edu>, Dylan Parsons <parsondm@dukes.jmu.edu>
+ * @version V1 12/3/18
+ */
 public class Ship extends AbstractSprite implements KeyListener
 {
   private TransformableContent content;
@@ -15,6 +21,14 @@ public class Ship extends AbstractSprite implements KeyListener
   private int health;
   private Clip damageSound;
   
+  /**
+   * Constructor for the Ship Sprite.
+   * 
+   * @param content The Content to render
+   * @param minX The minimum x value the Ship can move to
+   * @param maxX The maximum x value the Ship can move to
+   * @param damageSound The audio that plays when the Ship takes damage
+   */
   public Ship(TransformableContent content, double minX, double maxX, Clip damageSound)
   {
     super();
@@ -38,19 +52,32 @@ public class Ship extends AbstractSprite implements KeyListener
   @Override
   public void handleTick(int tick)
   {
-    
+    // Unused as the Ship only needs to respond to key presses
   }
   
+  /**
+   * Sets the Ship's current health.
+   * 
+   * @param health The Ship's new health value.
+   */
   private void setHealth(int health)
   {
     this.health = health;
   }
   
+  /**
+   * Returns the Ship's current health.
+   * 
+   * @return The Ship's current health
+   */
   public int getHealth()
   {
     return health;
   }
   
+  /**
+   * 
+   */
   public void takeDamage()
   {
     setHealth(getHealth() - 1);
@@ -67,20 +94,32 @@ public class Ship extends AbstractSprite implements KeyListener
     
     if (key == 'a' && x > minX)
     {
-      setLocation(x -= 10, y);
+      x -= 10;
+      setLocation(x, y);
     }
     
     if (key == 'd' && x < maxX)
     {
-      setLocation(x += 10, y);
+      x += 10;
+      setLocation(x, y);
     }
   }
   
+  /**
+   * Returns the Ship's x coordinate.
+   * 
+   * @return The Ship's x coordinate
+   */
   public double getX()
   {
     return x;
   }
   
+  /**
+   * Returns the Ship's y coordinate.
+   * 
+   * @return The Ship's y coordinate.
+   */
   public double getY()
   {
     return y;
@@ -89,13 +128,13 @@ public class Ship extends AbstractSprite implements KeyListener
   @Override
   public void keyReleased(KeyEvent key)
   {
-    // TODO Auto-generated method stub  
+    // UNUSED  
   }
 
   @Override
   public void keyTyped(KeyEvent key)
   {
-    // TODO Auto-generated method stub  
+    // UNUSED  
   }
 
 }

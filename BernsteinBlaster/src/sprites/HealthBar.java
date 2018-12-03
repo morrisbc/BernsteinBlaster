@@ -3,6 +3,13 @@ package sprites;
 import visual.dynamic.described.AbstractSprite;
 import visual.statik.TransformableContent;
 
+/**
+ * The main health pool for the player in the game. This displays to the player
+ * the health of the protagonist at any given time.
+ * 
+ * @author Bryce Morris <morrisbc@dukes.jmu.edu>, Dylan Parsons <parsondm@dukes.jmu.edu>
+ * @version V1 12/3/18
+ */
 public class HealthBar extends AbstractSprite
 {
   private TransformableContent[] contents;
@@ -10,6 +17,14 @@ public class HealthBar extends AbstractSprite
   private int x, y;
   private int state;
   
+  /**
+   * The constructor for the HealthBar.
+   * 
+   * @param x The x location of the HealthBar
+   * @param y The y location of the HealthBar
+   * @param contents The multiple contents representing health levels
+   * @param protagonist The main character of the game whose health is displayed
+   */
   public HealthBar(int x, int y, TransformableContent[] contents, Ship protagonist)
   {
     this.x = x;

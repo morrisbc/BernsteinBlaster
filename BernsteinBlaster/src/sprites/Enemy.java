@@ -7,6 +7,12 @@ import javax.sound.sampled.Clip;
 import visual.dynamic.described.AbstractSprite;
 import visual.statik.TransformableContent;
 
+/**
+ * An Enemy sprite within the game. This does damage to the protagonist on contact.
+ * 
+ * @author Bryce Morris <morrisbc@dukes.jmu.edu>, Dylan Parsons <parsondm@dukes.jmu.edu>
+ * @version V1 12/3/18
+ */
 public class Enemy extends AbstractSprite
 {
   private TransformableContent content;
@@ -17,7 +23,17 @@ public class Enemy extends AbstractSprite
   private Random rng;
   private Clip damageSound;
   
-  public Enemy(TransformableContent content, int width, int height, Ship protagonist, Clip damageSound)
+  /**
+   * Constructor for an Enemy Sprite within the game.
+   * 
+   * @param content The Content to render.
+   * @param width The width of the Enemy's container
+   * @param height The height of the Enemy's container
+   * @param protagonist The Enemy's enemy (the game protagonist)
+   * @param damageSound The audio that plays when the Enemy takes damage
+   */
+  public Enemy(TransformableContent content, int width, int height, Ship protagonist, 
+               Clip damageSound)
   {
     super();
     this.content = content;
@@ -28,7 +44,7 @@ public class Enemy extends AbstractSprite
     hitShip = false;
     this.damageSound = damageSound;
     rng = new Random(System.currentTimeMillis());
-    x = rng.nextDouble() * (maxX - 10);
+    x = rng.nextDouble() * (maxX - 50);
     y = rng.nextDouble() * -250.0;
     setLocation(x, y);
     setVisible(true);
@@ -40,16 +56,29 @@ public class Enemy extends AbstractSprite
     return content;
   }
   
+  /**
+   * Sets the Enemy's current health.
+   * 
+   * @param health The Enemy's new health
+   */
   private void setHealth(int health)
   {
     this.health = health;
   }
   
+  /**
+   * Returns the Enemy's current health.
+   * 
+   * @return The Enemy's current health
+   */
   public int getHealth()
   {
     return health;
   }
   
+  /**
+   * Damages the Enemy and plays its damage audio.
+   */
   public void takeDamage()
   {
     setHealth(getHealth() - 1);

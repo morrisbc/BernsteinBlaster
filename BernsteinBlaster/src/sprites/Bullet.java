@@ -6,6 +6,12 @@ import visual.dynamic.described.AbstractSprite;
 import visual.dynamic.described.Stage;
 import visual.statik.TransformableContent;
 
+/**
+ * A Bullet sprite within the game. This entity is shot from the protagonist.
+ * 
+ * @author Bryce Morris <morrisbc@dukes.jmu.edu>, Dylan Parsons <parsondm@dukes.jmu.edu>
+ * @version V1 12/3/18
+ */
 public class Bullet extends AbstractSprite
 {
   private TransformableContent content;
@@ -13,6 +19,15 @@ public class Bullet extends AbstractSprite
   private Stage stage;
   private ArrayList<Enemy> antagonists;
   
+  /**
+   * Constructor for a Bullet sprite.
+   * 
+   * @param content The piece of content to render
+   * @param x The x position of the Bullet
+   * @param y The y position of the Bullet
+   * @param stage The Stage the Bullet is contained in
+   * @param antagonists The list of enemy Sprites
+   */
   public Bullet (TransformableContent content, double x, double y, Stage stage, 
       ArrayList<Enemy> antagonists)
   {
