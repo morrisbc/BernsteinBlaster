@@ -202,7 +202,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
         BufferedInputStream bis = new BufferedInputStream(in);
         menuMusic = AudioSystem.getClip();
         menuMusic.open(AudioSystem.getAudioInputStream(bis));
-        //menuMusic.start();
+        menuMusic.start();
         menuPlaying = true;
       }
     }
@@ -852,11 +852,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   {
     if (state.equals("game"))
     {
-      if (ship.getHealth() <= 0)
-      {
-        gameOver();
-      }
-      
       score++;
       scoreLabel.setText(String.format("%08d", score));
       
@@ -865,6 +860,11 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
         score += (10 - enemies.size()) * 100;
         scoreLabel.setText(String.format("%08d", score));
         spawnEnemy();
+      }
+      
+      if (ship.getHealth() <= 0)
+      {
+        gameOver();
       }
     }
     
