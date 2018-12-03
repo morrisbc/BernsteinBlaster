@@ -15,10 +15,11 @@ import visual.statik.TransformableContent;
  */
 public class Enemy extends AbstractSprite
 {
-  private TransformableContent content;
+  private TransformableContent contents[];
   private double maxX, maxY, x, y;
   private Ship protagonist;
   private int health;
+  private int state;
   private boolean hitShip;
   private Random rng;
   private Clip damageSound;
@@ -26,21 +27,22 @@ public class Enemy extends AbstractSprite
   /**
    * Constructor for an Enemy Sprite within the game.
    * 
-   * @param content The Content to render.
+   * @param contents The Contents to render.
    * @param width The width of the Enemy's container
    * @param height The height of the Enemy's container
    * @param protagonist The Enemy's enemy (the game protagonist)
    * @param damageSound The audio that plays when the Enemy takes damage
    */
-  public Enemy(TransformableContent content, int width, int height, Ship protagonist, 
+  public Enemy(TransformableContent contents[], int width, int height, Ship protagonist, 
                Clip damageSound)
   {
     super();
-    this.content = content;
+    this.contents = contents;
     this.maxX = width;
     this.maxY = height;
     this.protagonist = protagonist;
     health = 3;
+    state = health - 1;
     hitShip = false;
     this.damageSound = damageSound;
     rng = new Random(System.currentTimeMillis());
@@ -53,7 +55,7 @@ public class Enemy extends AbstractSprite
   @Override
   protected TransformableContent getContent()
   {
-    return content;
+    return contents[state];
   }
   
   /**
@@ -77,11 +79,16 @@ public class Enemy extends AbstractSprite
   }
   
   /**
-   * Damages the Enemy and plays its damage audio.
+   * Damages the Enemy, changes its character model to reflect the damage taken,
+   * and plays its damage audio.
    */
   public void takeDamage()
   {
     setHealth(getHealth() - 1);
+    if (getHealth() > 0) 
+    {
+      state = getHealth() - 1;
+    }
     damageSound.setMicrosecondPosition(0);
     damageSound.start();
   }
