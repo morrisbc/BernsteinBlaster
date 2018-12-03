@@ -39,6 +39,26 @@ public class CreditSprite extends AbstractSprite
   {
     return content;
   }
+  
+  /**
+   * Returns this CreditSprite's x value.
+   * 
+   * @return This CreditSprite's x value
+   */
+  public double getX()
+  {
+    return x;
+  }
+  
+  /**
+   * Returns this CreditSprite's y value.
+   * 
+   * @return This CreditSprite's y value
+   */
+  public double getY()
+  {
+    return y;
+  }
 
   @Override
   public void handleTick(int tick)

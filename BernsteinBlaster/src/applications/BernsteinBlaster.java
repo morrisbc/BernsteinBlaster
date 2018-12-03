@@ -105,7 +105,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private boolean                      menuPlaying, creditsPaused;
   private Ship                         ship;
   //Used to return to the main menu after the credits are over;
-  private int                          score, messageTimer, creditTimer;
+  private int                          score, messageTimer;
   private JLabel                       scoreLabel;
   private JTextArea                    textArea;
   private ArrayList<Enemy>             enemies;
@@ -113,6 +113,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private String                       state;
   private ArrayList<String>            highscores;
   private HealthBar                    healthBar;
+  private CreditSprite                 lastCredit;
 
   /**
    * Explicit value constructor.
@@ -284,8 +285,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       System.out.println("Exception");
       System.out.println(e.toString());
     }
-    
-    creditTimer = 0;
   }
   
   /**
@@ -631,8 +630,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     sprite.setScale(0.4, 0.4);
     creditStage.add(sprite);
     
+    lastCredit = sprite;
+    
     // Initialize the credit timer so we know when to return to the main menu
-    creditTimer = 0;
     creditStage.start();
     creditsPaused = false;
     creditStage.addKeyListener(this);
@@ -802,7 +802,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     spaceDirection.setLocation((width / 2) - 461.7, 350);
     controlsStage.add(spaceDirection);
     
-    escDirection = FACTORY.createContent("ESCDirect.png", 4);
+    escDirection = FACTORY.createContent("EscDirect.png", 4);
     escDirection.setScale(0.9, 0.9);
     escDirection.setLocation((width / 2) - 446.4, 450);
     controlsStage.add(escDirection);
@@ -941,7 +941,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       
       if (state.equals(CREDIT_STATE))
       {
-        creditTimer = 0;
         creditStage.stop();
       }
       
@@ -1008,7 +1007,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       
       if (state.equals(CREDIT_STATE))
       {
-        creditTimer = 0;
         creditStage.stop();
       }
       
@@ -1143,9 +1141,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (state.equals(CREDIT_STATE) && !creditsPaused)
     {
-      System.out.println(creditTimer);
-      creditTimer++;
-      if (creditTimer > 900)
+      if (lastCredit.getY() < -75)
       {
         setupMenu();
       }
