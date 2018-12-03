@@ -7,6 +7,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
 
@@ -44,6 +50,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private static final MatteBorder BORDER = new MatteBorder(4, 4, 4, 4, BORDER_COLOR);
   private static final Font BUTTON_FONT = new Font("Arial Black", Font.BOLD, 16);
   private static final Font SCORE_FONT  = new Font("Arial Black", Font.BOLD, 24);
+  private static final Font HIGHSCORE_FONT = new Font("Arial Black", Font.BOLD, 36);
   private static final ResourceFinder FINDER = ResourceFinder.createInstance(resources.Marker.class);
   private static final ContentFactory FACTORY = new ContentFactory(FINDER);
   private static final String BACKGROUND = "Space.png";
@@ -60,6 +67,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   private ArrayList<Enemy> enemies;
   private String state;
   private int creditTimer;
+  private ArrayList<String> highscores;
 
   public BernsteinBlaster(String[] args, int width, int height)
   {
@@ -78,6 +86,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     contentPane.setLayout(null);
     contentPane.setBackground(Color.BLACK);
     
+    highscores = new ArrayList<String>();
+    readHighscores();
     muted = false;
     setupMenu();
   }
@@ -532,6 +542,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     Stage scoreStage;
     VisualizationView scoreView;
     Asteroid asteroid;
+    JLabel entry;
+    ArrayList<JLabel> entries;
+    int labelLocation;
     
     state = "highscores";
     
@@ -589,6 +602,19 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     fifth.setLocation((width / 4), 550);
     fifth.setScale(0.75, 0.75);
     scoreStage.add(fifth);
+    
+    entries = new ArrayList<JLabel>();
+    labelLocation = 55;
+    for (String highscore : highscores)
+    {
+      entry = new JLabel(highscore, SwingConstants.CENTER);
+      entry.setBounds((width / 2) - 250, 150, 500, labelLocation);
+      entry.setFont(HIGHSCORE_FONT);
+      entry.setForeground(Color.WHITE);
+      entries.add(entry);
+      contentPane.add(entry);
+      labelLocation += 200;
+    }
     
     scoreView = scoreStage.getView();
     scoreView.setBounds(0, 0, width, height);
@@ -651,6 +677,17 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameStage.stop();
     gameMusic.stop();
     defeat.start();
+    
+    for (int i = 0; i < highscores.size(); i++)
+    {
+      if (score > Integer.parseInt(highscores.get(i)))
+      {
+        highscores.add(i, score + "");
+        highscores.remove(highscores.size() - 1);
+        writeHighscores();
+        break;
+      }
+    }
   }
   
   private void spawnEnemy()
@@ -665,6 +702,53 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     gameStage.add(enemy);
   }
   
+  private void readHighscores()
+  {
+    File highscoreFile;
+    BufferedReader reader;
+    String line;
+    
+    try
+    {
+      highscoreFile = new File("Highscores.txt");
+      reader = new BufferedReader(new FileReader(highscoreFile));
+      
+      while ((line = reader.readLine()) != null)
+      {
+        highscores.add(line);
+      }
+      
+      reader.close();
+    }
+    catch (IOException ioe)
+    {
+      System.out.println("Error reading highscores.");
+    }
+  }
+  
+  private void writeHighscores()
+  {
+    File highscoreFile;
+    BufferedWriter writer;
+    
+    try
+    {
+      highscoreFile = new File("Highscores.txt");
+      writer = new BufferedWriter(new FileWriter(highscoreFile));
+      
+      for (String highscore : highscores)
+      {
+        System.out.println(highscore);
+        writer.write(highscore);
+        writer.newLine();
+      }
+      writer.close();
+    }
+    catch (IOException ioe)
+    {
+      System.out.println("Error reading highscores.");
+    }
+  }
   
   @Override
   public void keyPressed(KeyEvent stroke)
@@ -724,9 +808,12 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     
     if (button.getActionCommand().equals("MENU"))
     {
+      if (state.equals("game"))
+      {
+        gameStage.stop();
+        gameMusic.stop();
+      }
       setupMenu();
-      gameStage.stop();
-      gameMusic.stop();
     }
     
     if (button.getActionCommand().equals("CONTROLS"))
@@ -781,7 +868,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
       }
     }
     
-    if (state.equals("credits"))
+    if (state.equals("credits") && !creditsPaused)
     {
       creditTimer++;
       if (creditTimer > 900)
