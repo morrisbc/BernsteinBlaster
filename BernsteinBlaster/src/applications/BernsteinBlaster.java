@@ -474,8 +474,8 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     sprite.setScale(0.4, 0.4);
     creditStage.add(sprite);
     
-    content = FACTORY.createContent("Kinetic-Words.png", 4);
-    sprite = new CreditSprite(content, (width/2) - 229.8, (height/4) + 1550);
+    content = FACTORY.createContent("La-Calahorra-Word.png", 4);
+    sprite = new CreditSprite(content, (width/2) - 223.2, (height/4) + 1550);
     sprite.setScale(0.4, 0.4);
     creditStage.add(sprite);
     
@@ -695,9 +695,9 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     TransformableContent enemyContent;
     Enemy enemy;
     
-    enemyContent = FACTORY.createContent("bear.png", 4);
+    enemyContent = FACTORY.createContent("F-Ship.png", 4);
     enemy = new Enemy(enemyContent, width - 300, height, ship, enemyDamage);
-    enemy.setScale(0.05, 0.05);
+    enemy.setScale(0.085, 0.085);
     enemies.add(enemy);
     gameStage.add(enemy);
   }
