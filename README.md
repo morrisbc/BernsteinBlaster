@@ -38,3 +38,6 @@ notorious F-Ship fleet. You've got one goal and one goal only: survive.
 ## Other Notes
 - The window dimensions are locked at 1280 x 720 so if you're running a lower resolution
   monitor our apologies.
+- A lot of the communications from Lord Bernstein are inside jokes so if/when you don't get them you'll
+  need to take CS349 with [Professor David Bernstein](https://users.cs.jmu.edu/bernstdh/Web/index.html)
+  at [James Madison University](https://www.jmu.edu/cs/)
