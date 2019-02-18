@@ -16,9 +16,9 @@ notorious F-Ship fleet. You've got one goal and one goal only: survive.
   This assumes you have Java on your **PATH** variable. If this isn't the case you can find more
   information on how to fix that [here](https://www.java.com/en/download/help/path.xml).
 
-- The game will not run without **multimedia.jar** in the same directory as **BernsteinBlaster.jar**  
-  The highscores functionality will not work if the **Highscores.txt** file is not in the same directory
-  as **BernsteinBlaster.jar**
+- **The game will not run without _multimedia.jar_ in the same directory as _BernsteinBlaster.jar_**  
+  **The highscores functionality will not work if the _Highscores.txt_ file is not in the same directory
+  as _BernsteinBlaster.jar_**
 
 ## Controls
 - A : Strafe Left  
