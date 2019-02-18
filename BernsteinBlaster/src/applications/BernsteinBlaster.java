@@ -30,7 +30,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
 
-import app.JApplication;
+import lib.JApplication;
 import event.MetronomeListener;
 import io.ResourceFinder;
 import sprites.Asteroid;
@@ -96,7 +96,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
                                                     "Nice shot, but I think you're\nsupposed to "
                                                     + "actually\nHIT the ships!",
                                                     "You got lucky you made it this\nfar!"};
-  private static final Random           RNG = new Random(System.currentTimeMillis());
+  private static final Random          RNG = new Random(System.currentTimeMillis());
   
   private JPanel                       contentPane;
   private Stage                        menuStage, gameStage, creditStage, bernStage, scoreStage,
@@ -986,7 +986,6 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
   @Override
   public void actionPerformed(ActionEvent button)
   {
-    System.out.println(button.getActionCommand());
     if (button.getActionCommand().equals(START))
       setupGame();
     
@@ -1143,6 +1142,7 @@ public class BernsteinBlaster extends JApplication implements KeyListener, Actio
     {
       if (lastCredit.getY() < -75)
       {
+        creditStage.stop();
         setupMenu();
       }
     }
