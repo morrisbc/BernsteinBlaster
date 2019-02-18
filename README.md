@@ -1,6 +1,6 @@
 # Bernstein Blaster
 
-![Bernstein Blaster Main Menu](https://github.com/morrisbc/BernsteinBlaster/blob/master/BernsteinBlaster/BernsteinBlasterMenu.PNG)
+![Bernstein Blaster Main Menu](https://github.com/morrisbc/BernsteinBlaster/blob/master/BernsteinBlasterMenu.PNG)
 
 ## Briefing
 In a galaxy where Lord Bernstein terrorizes its inhabitants you're the only hope.
