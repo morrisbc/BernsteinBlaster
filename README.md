@@ -7,6 +7,19 @@ In a galaxy where Lord Bernstein terrorizes its inhabitants you're the only hope
 You've heard the tales, made the jump, and finally you're in front of the 
 notorious F-Ship fleet. You've got one goal and one goal only: survive.
 
+## Running the Game
+- The easiest way to run the game is from the **app** directory. If you've got Java associated
+  with .jar files then just double click the **BernsteinBlaster.jar** file and the game should run.  
+
+- Alternatively open up a terminal within the **app** directory and run:  
+  ```java -jar BernsteinBlaster.jar```  
+  This assumes you have Java on your **PATH** variable. If this isn't the case you can find more
+  information on how to fix that [here](https://www.java.com/en/download/help/path.xml).
+
+- The game will not run without **multimedia.jar** in the same directory as **BernsteinBlaster.jar**  
+  The highscores functionality will not work if the **Highscores.txt** file is not in the same directory
+  as **BernsteinBlaster.jar**
+
 ## Controls
 - A : Strafe Left  
 - D : Strafe Right  
@@ -25,5 +38,3 @@ notorious F-Ship fleet. You've got one goal and one goal only: survive.
 ## Other Notes
 - The window dimensions are locked at 1280 x 720 so if you're running a lower resolution
   monitor our apologies.
-- Highscores assume that the 'Highscores.txt' file is in the same directory as the jar file 
-  (assuming you're running the application from the jar file which can be found [here]())
