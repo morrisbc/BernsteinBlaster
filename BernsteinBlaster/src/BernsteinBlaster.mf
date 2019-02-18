@@ -1,3 +1,0 @@
-Manifest-Version: 1.2
-Main-Class: applications.BernsteinBlaster
-Class-Path: multimedia2.jar
