@@ -1,4 +1,7 @@
 # Bernstein Blaster
+
+![Bernstein Blaster Main Menu](https://github.com/morrisbc/BernsteinBlaster/blob/master/BernsteinBlaster/BernsteinBlasterMenu.PNG)
+
 ## Briefing
 In a galaxy where Lord Bernstein terrorizes its inhabitants you're the only hope.
 You've heard the tales, made the jump, and finally you're in front of the 
